@@ -1,4 +1,4 @@
-import { Node, Edge, MarkerType } from 'reactflow';
+import { Node, Edge } from 'reactflow';
 import { NodeData, NodeType } from './constants';
 
 export function createNewNode(type: NodeType): Node<NodeData> {
@@ -51,6 +51,8 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
   const edges: Edge[] = [];
   const nodeCodeToId = new Map();
 
+  console.log('Importing JSON data:', jsonData);
+
   // Import nodes
   if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
     jsonData.nodes.forEach((nodeData: any, index: number) => {
@@ -71,14 +73,21 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
       };
       nodes.push(node);
       nodeCodeToId.set(nodeData.code, nodeId);
+      console.log(`Mapped node code "${nodeData.code}" to ID "${nodeId}"`);
     });
   }
 
+  console.log('Node code to ID mapping:', Array.from(nodeCodeToId.entries()));
+
   // Import edges
   if (jsonData.edges && Array.isArray(jsonData.edges)) {
+    console.log(`Processing ${jsonData.edges.length} edges`);
     jsonData.edges.forEach((edgeData: any, index: number) => {
+      console.log(`Edge ${index}:`, edgeData);
       const sourceId = nodeCodeToId.get(edgeData.source);
       const targetId = nodeCodeToId.get(edgeData.target);
+      
+      console.log(`Source "${edgeData.source}" -> ID "${sourceId}", Target "${edgeData.target}" -> ID "${targetId}"`);
       
       if (sourceId && targetId) {
         const edge: Edge = {
@@ -87,7 +96,7 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
           target: targetId,
           type: 'custom',
           label: edgeData.label || "",
-          markerEnd: { type: MarkerType.ArrowClosed },
+          markerEnd: { type: 'arrowclosed' as any },
           style: {
             stroke: edgeData.color === "blue" ? "#3b82f6" :
                     edgeData.color === "red" ? "#ef4444" :
@@ -96,10 +105,14 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
           },
         };
         edges.push(edge);
+        console.log(`Created edge:`, edge);
+      } else {
+        console.warn(`Failed to create edge: source "${edgeData.source}" (${sourceId}) or target "${edgeData.target}" (${targetId}) not found`);
       }
     });
   }
 
+  console.log(`Final result: ${nodes.length} nodes, ${edges.length} edges`);
   return { nodes, edges };
 }
 
