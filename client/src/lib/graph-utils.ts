@@ -51,7 +51,7 @@ export { mapNodeType };
 export function createNewNode(type: NodeType): Node<NodeData> {
   const timestamp = Date.now();
   
-  const newNode = {
+  return {
     id: timestamp.toString(),
     type: 'custom',
     position: { x: 100, y: 100 },
@@ -62,9 +62,6 @@ export function createNewNode(type: NodeType): Node<NodeData> {
       attrs: {},
     },
   };
-  
-  console.log('Creating new node:', newNode);
-  return newNode;
 }
 
 export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {

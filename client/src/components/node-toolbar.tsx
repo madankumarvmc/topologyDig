@@ -13,9 +13,9 @@ export default function NodeToolbar() {
       type: 'custom',
       position: { x: 400, y: 300 },
       data: {
-        code: `node_${Date.now()}`,
+        code: '',
         type: 'simple' as const,
-        cmd: Math.floor(Math.random() * 1000),
+        cmd: 0,
         attrs: {},
       },
     };
