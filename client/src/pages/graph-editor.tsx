@@ -261,7 +261,7 @@ export default function GraphEditor() {
         <NodeToolbar />
 
         {/* Main Canvas */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative" ref={reactFlowWrapper}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -273,7 +273,23 @@ export default function GraphEditor() {
             onEdgeClick={onEdgeClick}
             onEdgeDoubleClick={onEdgeDoubleClick}
             onPaneClick={onPaneClick}
-            onDrop={onDrop}
+            onDrop={(event) => {
+              const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
+              const position = reactFlowBounds ? {
+                x: event.clientX - reactFlowBounds.left - 75,
+                y: event.clientY - reactFlowBounds.top - 25,
+              } : { x: event.clientX - 75, y: event.clientY - 25 };
+              
+              const type = event.dataTransfer.getData('application/reactflow');
+              if (type) {
+                event.preventDefault();
+                import('../lib/graph-utils').then(({ createNewNode }) => {
+                  const newNode = createNewNode(type);
+                  newNode.position = position;
+                  setNodes([...nodes, newNode]);
+                });
+              }
+            }}
             onDragOver={onDragOver}
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
