@@ -83,10 +83,10 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
     edges: edges.map(edge => ({
       from: nodeIdToCode.get(edge.source) || edge.source,
       to: nodeIdToCode.get(edge.target) || edge.target,
-      distance: 0.5,
-      attrs: {},
-      default: edge.style?.stroke === "#3b82f6" && edge.style?.strokeWidth === 3,
-      capacity: 1,
+      distance: edge.data?.distance || 0.5,
+      attrs: edge.data?.attrs || {},
+      default: edge.data?.default || false,
+      capacity: edge.data?.capacity || 1,
     })),
     loops: [], // Will be populated in phase 2 with loop detection
   };
@@ -146,6 +146,12 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
           style: {
             stroke: edgeData.default ? "#3b82f6" : "#666",
             strokeWidth: edgeData.default ? 3 : 2,
+          },
+          data: {
+            distance: edgeData.distance || 0.5,
+            attrs: edgeData.attrs || {},
+            default: edgeData.default || false,
+            capacity: edgeData.capacity || 1,
           },
         };
         edges.push(edge);
