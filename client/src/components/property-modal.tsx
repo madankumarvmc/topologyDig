@@ -311,13 +311,82 @@ export default function PropertyModal() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
+                  <Label htmlFor="from" className="text-xs font-medium text-gray-700">From Node</Label>
+                  <Input
+                    id="from"
+                    type="text"
+                    value={String(selectedEdge.source || "")}
+                    onChange={(e) => handleUpdateEdge('source', e.target.value)}
+                    placeholder="Source node code"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="to" className="text-xs font-medium text-gray-700">To Node</Label>
+                  <Input
+                    id="to"
+                    type="text"
+                    value={String(selectedEdge.target || "")}
+                    onChange={(e) => handleUpdateEdge('target', e.target.value)}
+                    placeholder="Target node code"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="distance" className="text-xs font-medium text-gray-700">Distance</Label>
+                  <Input
+                    id="distance"
+                    type="number"
+                    step="0.1"
+                    value={selectedEdge.data?.distance || 0.5}
+                    onChange={(e) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      distance: parseFloat(e.target.value) || 0.5 
+                    })}
+                    placeholder="Distance value"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="capacity" className="text-xs font-medium text-gray-700">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    value={selectedEdge.data?.capacity || 1}
+                    onChange={(e) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      capacity: parseInt(e.target.value) || 1 
+                    })}
+                    placeholder="Edge capacity"
+                    className="mt-1"
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="default"
+                    checked={selectedEdge.data?.default || false}
+                    onChange={(e) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      default: e.target.checked 
+                    })}
+                    className="rounded"
+                  />
+                  <Label htmlFor="default" className="text-xs font-medium text-gray-700">Default Route</Label>
+                </div>
+                
+                <div>
                   <Label htmlFor="label" className="text-xs font-medium text-gray-700">Label</Label>
                   <Input
                     id="label"
                     type="text"
-                    value={(selectedEdge.label as string) || ""}
+                    value={String(selectedEdge.label || "")}
                     onChange={(e) => handleUpdateEdge('label', e.target.value)}
-                    placeholder="Edge label (e.g., distance, time)"
+                    placeholder="Edge label"
                     className="mt-1"
                   />
                 </div>
@@ -325,7 +394,7 @@ export default function PropertyModal() {
                 <div>
                   <Label htmlFor="color" className="text-xs font-medium text-gray-700">Color</Label>
                   <Select
-                    value={selectedEdge.style?.stroke || "#666"}
+                    value={selectedEdge.style?.stroke || "#666666"}
                     onValueChange={(value) => handleUpdateEdge('style', { 
                       ...selectedEdge.style, 
                       stroke: value 
@@ -335,10 +404,12 @@ export default function PropertyModal() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="#666">Default</SelectItem>
+                      <SelectItem value="#666666">Grey (Default)</SelectItem>
                       <SelectItem value="#3b82f6">Blue</SelectItem>
                       <SelectItem value="#ef4444">Red</SelectItem>
                       <SelectItem value="#22c55e">Green</SelectItem>
+                      <SelectItem value="#f59e0b">Orange</SelectItem>
+                      <SelectItem value="#8b5cf6">Purple</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -362,6 +433,126 @@ export default function PropertyModal() {
                       <SelectItem value="4">Extra Thick (4px)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Edge Attributes */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Edge Attributes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {/* Existing Attributes */}
+                <div className="space-y-2">
+                  {Object.entries(selectedEdge.data?.attrs || {}).map(([key, value]) => (
+                    <div key={key} className="flex items-center space-x-2">
+                      <Badge variant="secondary" className="flex-1 justify-between">
+                        <span className="text-xs">{key}: {String(value)}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-red-100"
+                          onClick={() => {
+                            const updatedAttrs = { ...selectedEdge.data?.attrs };
+                            delete updatedAttrs[key];
+                            handleUpdateEdge('data', { 
+                              ...selectedEdge.data, 
+                              attrs: updatedAttrs 
+                            });
+                          }}
+                        >
+                          <Trash2 className="h-3 w-3 text-red-600" />
+                        </Button>
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Add New Attribute */}
+                <div className="space-y-2 pt-2 border-t">
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="Key"
+                      value={newAttrKey}
+                      onChange={(e) => setNewAttrKey(e.target.value)}
+                      className="text-xs"
+                    />
+                    <Input
+                      placeholder="Value"
+                      value={newAttrValue}
+                      onChange={(e) => setNewAttrValue(e.target.value)}
+                      className="text-xs"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (!selectedEdge || !newAttrKey.trim()) return;
+                        
+                        const updatedAttrs = {
+                          ...selectedEdge.data?.attrs,
+                          [newAttrKey.trim()]: newAttrValue.trim() || "true"
+                        };
+                        
+                        handleUpdateEdge('data', { 
+                          ...selectedEdge.data, 
+                          attrs: updatedAttrs 
+                        });
+                        setNewAttrKey("");
+                        setNewAttrValue("");
+                        
+                        toast({
+                          title: "Edge Attribute Added",
+                          description: `Added attribute: ${newAttrKey}`,
+                        });
+                      }}
+                      disabled={!newAttrKey.trim()}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Quick Edge Attributes */}
+                <div>
+                  <Label className="text-xs font-medium text-gray-700 mb-2 block">Quick Attributes</Label>
+                  <div className="grid grid-cols-2 gap-1">
+                    {[
+                      "priority:high",
+                      "weight:1",
+                      "speed:normal",
+                      "bidirectional:true",
+                      "blocked:false",
+                      "maintenance:false"
+                    ].map((attr) => (
+                      <Button
+                        key={attr}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs py-1 px-2"
+                        onClick={() => {
+                          const [key, value] = attr.split(':');
+                          const updatedAttrs = {
+                            ...selectedEdge.data?.attrs,
+                            [key]: value
+                          };
+                          
+                          handleUpdateEdge('data', { 
+                            ...selectedEdge.data, 
+                            attrs: updatedAttrs 
+                          });
+                          
+                          toast({
+                            title: "Quick Attribute Added",
+                            description: `Added ${key}: ${value}`,
+                          });
+                        }}
+                      >
+                        {attr.split(':')[0]}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
