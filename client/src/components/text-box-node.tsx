@@ -90,7 +90,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
     <div className="relative">
       {/* Text Content */}
       <div
-        className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[100px] min-h-[30px] flex items-center justify-center`}
+        className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[100px] min-h-[30px] flex items-center justify-center relative`}
         onDoubleClick={handleDoubleClick}
         style={textStyle}
       >
@@ -118,6 +118,84 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
           >
             {data.text || 'Text'}
           </div>
+        )}
+        
+        {/* Resize Handles */}
+        {selected && (
+          <>
+            {/* Corner resize handle */}
+            <div
+              className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-se-resize opacity-70 hover:opacity-100 rounded-tl"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = data.width || 150;
+                const startHeight = data.height || 40;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const newWidth = Math.max(100, startWidth + (e.clientX - startX));
+                  const newHeight = Math.max(30, startHeight + (e.clientY - startY));
+                  updateProperty('width', newWidth);
+                  updateProperty('height', newHeight);
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+            
+            {/* Right edge resize handle */}
+            <div
+              className="absolute top-2 bottom-2 right-0 w-1 bg-blue-500 cursor-e-resize opacity-50 hover:opacity-100"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const startX = e.clientX;
+                const startWidth = data.width || 150;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const newWidth = Math.max(100, startWidth + (e.clientX - startX));
+                  updateProperty('width', newWidth);
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+            
+            {/* Bottom edge resize handle */}
+            <div
+              className="absolute bottom-0 left-2 right-2 h-1 bg-blue-500 cursor-s-resize opacity-50 hover:opacity-100"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const startY = e.clientY;
+                const startHeight = data.height || 40;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const newHeight = Math.max(30, startHeight + (e.clientY - startY));
+                  updateProperty('height', newHeight);
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+          </>
         )}
       </div>
 
