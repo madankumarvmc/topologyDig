@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(240, 4.8%, 95.9%);
+  --muted-foreground: hsl(240, 3.7%, 45.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(240, 5.9%, 90%);
+  --input: hsl(240, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 4.8%, 95.9%);
+  --secondary-foreground: hsl(240, 5.9%, 10%);
+  --accent: hsl(240, 4.8%, 95.9%);
+  --accent-foreground: hsl(240, 5.9%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 10%, 3.9%);
+  --radius: 0.5rem;
+  
+  /* Custom graph editor colors */
+  --node-simple: hsl(0, 0%, 62%);
+  --node-scanner: hsl(122, 39%, 49%);
+  --node-eject: hsl(28, 100%, 50%);
+  --canvas-bg: hsl(0, 0%, 98%);
+  --grid-color: hsl(0, 0%, 88%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  
+  /* Dark mode graph colors */
+  --node-simple: hsl(0, 0%, 45%);
+  --node-scanner: hsl(122, 39%, 35%);
+  --node-eject: hsl(28, 100%, 35%);
+  --canvas-bg: hsl(240, 10%, 6%);
+  --grid-color: hsl(240, 3.7%, 25%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* React Flow custom styles */
+.react-flow {
+  background-color: var(--canvas-bg);
+}
+
+.react-flow__background {
+  background-color: var(--canvas-bg);
+}
+
+.react-flow__node-custom {
+  background: transparent;
+  border: none;
+}
+
+.react-flow__edge-custom {
+  stroke-width: 2;
+}
+
+.react-flow__controls {
+  background: white;
+  border: 1px solid hsl(240, 5.9%, 90%);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.react-flow__minimap {
+  background: white;
+  border: 1px solid hsl(240, 5.9%, 90%);
+  border-radius: 8px;
+}
+
+.react-flow__handle {
+  background: hsl(207, 90%, 54%);
+  border: 2px solid white;
+  width: 8px;
+  height: 8px;
+}
+
+.react-flow__handle-connecting {
+  background: hsl(28, 100%, 50%);
+}
+
+.react-flow__attribution {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* Custom node transitions */
+.graph-node {
+  transition: all 0.2s ease-in-out;
+}
+
+.graph-node:hover {
+  transform: scale(1.05);
+}
+
+.graph-node.selected {
+  transform: scale(1.1);
+}
+
+/* Custom scrollbar for property panel */
+.property-panel-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.property-panel-scroll::-webkit-scrollbar-track {
+  background: hsl(240, 4.8%, 95.9%);
+  border-radius: 3px;
+}
+
+.property-panel-scroll::-webkit-scrollbar-thumb {
+  background: hsl(240, 3.7%, 45.1%);
+  border-radius: 3px;
+}
+
+.property-panel-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(240, 5.9%, 35%);
+}
