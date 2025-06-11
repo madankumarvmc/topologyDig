@@ -41,7 +41,7 @@
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 10%, 3.9%);
   --radius: 0.5rem;
-  
+
   /* Custom graph editor colors */
   --node-simple: hsl(0, 0%, 62%);
   --node-scanner: hsl(122, 39%, 49%);
@@ -70,7 +70,7 @@
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
-  
+
   /* Dark mode graph colors */
   --node-simple: hsl(0, 0%, 45%);
   --node-scanner: hsl(122, 39%, 35%);
@@ -132,11 +132,12 @@
 }
 
 .react-flow__attribution {
-  font-size: 10px;
+  display: none !important;
+  /* font-size: 10px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(4px);
   border-radius: 4px;
-  padding: 2px 6px;
+  padding: 2px 6px; */
 }
 
 /* Custom node transitions */

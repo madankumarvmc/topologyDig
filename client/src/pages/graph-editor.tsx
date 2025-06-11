@@ -207,19 +207,11 @@ export default function GraphEditor() {
 
   const handleUndo = useCallback(() => {
     undo();
-    toast({
-      title: "Undo",
-      description: "Last action has been undone.",
-    });
-  }, [undo, toast]);
+  }, [undo]);
 
   const handleRedo = useCallback(() => {
     redo();
-    toast({
-      title: "Redo",
-      description: "Action has been redone.",
-    });
-  }, [redo, toast]);
+  }, [redo]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -238,41 +230,21 @@ export default function GraphEditor() {
       if (isCtrl && !isShift && event.key === "c") {
         event.preventDefault();
         copySelectedElements();
-        toast({
-          title: "Copied",
-          description: "Selected elements copied to clipboard.",
-        });
       } else if (isCtrl && !isShift && event.key === "v") {
         event.preventDefault();
         pasteElements();
-        toast({
-          title: "Pasted",
-          description: "Elements pasted from clipboard.",
-        });
       } else if (event.key === "Delete" || event.key === "Backspace") {
         event.preventDefault();
         deleteSelectedElements();
-        toast({
-          title: "Deleted",
-          description: "Selected elements deleted.",
-        });
       } else if (isCtrl && isShift && event.key === "Z") {
         event.preventDefault();
         if (canRedo) {
           redo();
-          toast({
-            title: "Redo",
-            description: "Action has been redone.",
-          });
         }
       } else if (isCtrl && !isShift && event.key === "z") {
         event.preventDefault();
         if (canUndo) {
           undo();
-          toast({
-            title: "Undo",
-            description: "Last action has been undone.",
-          });
         }
       }
     };
@@ -287,7 +259,6 @@ export default function GraphEditor() {
     redo,
     canUndo,
     canRedo,
-    toast,
   ]);
 
   return (
@@ -295,10 +266,10 @@ export default function GraphEditor() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold text-gray-800">
+          {/* <h1 className="text-xl font-semibold text-gray-800">
             2D Graph Editor
-          </h1>
-          <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+          </h1> */}
+          <span className="text-[18px] font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
             Warehouse Topology Designer
           </span>
         </div>
@@ -343,17 +314,21 @@ export default function GraphEditor() {
             <Upload className="h-4 w-4 mr-2" />
             Import JSON
           </Button>
-          {/* <Button variant="outline" size="sm" onClick={handleDotImport}>
+          {/* <Button className="bg-gray-600 hover:bg-gray-700" variant="outline" size="sm" onClick={handleDotImport}>
             <Upload className="h-4 w-4 mr-2" />
             Import DOT
           </Button> */}
-          <Button size="sm" onClick={handleExport}>
+          <Button
+            className="bg-gray-600 hover:bg-gray-700"
+            size="sm"
+            onClick={handleExport}
+          >
             <Download className="h-4 w-4 mr-2" />
             Export JSON
           </Button>
 
           <Separator orientation="vertical" className="h-6" />
-          <Button size="sm">
+          <Button className="bg-gray-600 hover:bg-gray-700" size="sm">
             <Save className="h-4 w-4 mr-2" />
             Save
           </Button>
@@ -437,7 +412,7 @@ export default function GraphEditor() {
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
             fitView
-            attributionPosition={false}
+            proOptions={{ hideAttribution: true }}
             className="bg-gray-50"
             multiSelectionKeyCode="Shift"
             selectionKeyCode="Shift"
@@ -446,7 +421,6 @@ export default function GraphEditor() {
           >
             <Background color="#e0e0e0" gap={20} size={1} />
             <Controls />
-
           </ReactFlow>
 
           {/* Auto Layout Toolbar */}
