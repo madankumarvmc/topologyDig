@@ -7,6 +7,7 @@ import { NODE_TYPES, EDGE_TYPES } from "@/lib/constants";
 import NodeToolbar from "@/components/node-toolbar";
 import PropertyModal from "@/components/property-modal";
 import ExportModal from "@/components/export-modal";
+import LayoutToolbar from "@/components/layout-toolbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Undo2, Redo2, Download, Upload } from "lucide-react";
@@ -196,6 +197,9 @@ export default function GraphEditor() {
               className="bg-white border border-gray-300 rounded-lg"
             />
           </ReactFlow>
+          
+          {/* Auto Layout Toolbar */}
+          <LayoutToolbar />
         </div>
 
 

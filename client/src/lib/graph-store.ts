@@ -161,7 +161,7 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       edges: addEdge({
         ...connection,
         type: 'custom',
-        markerEnd: { type: 'arrowclosed' as const },
+        markerEnd: { type: MarkerType.ArrowClosed },
       }, state.edges),
     }));
     get().saveToHistory();
