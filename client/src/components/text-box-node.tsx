@@ -41,11 +41,19 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
   }, [isEditing]);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
+    // Don't stop propagation to allow ReactFlow selection
+    if (!isEditing && !selected) {
+      // Let ReactFlow handle the selection first
+      return;
+    }
+  }, [isEditing, selected]);
+
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isEditing) {
+    if (selected && !isEditing) {
       setIsEditing(true);
     }
-  }, [isEditing]);
+  }, [selected, isEditing]);
 
   const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
@@ -152,6 +160,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
       <div
         className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[80px] min-h-[30px] flex items-center justify-center relative`}
         onClick={handleClick}
+        onDoubleClick={handleDoubleClick}
         style={textStyle}
       >
         {isEditing ? (
@@ -221,7 +230,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
       </div>
 
       {/* Formatting Toolbar */}
-      {selected && (
+      {selected && !isEditing && (
         <div className="absolute -top-12 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-1 z-50">
           <Select
             value={data.fontSize?.toString() || "14"}
