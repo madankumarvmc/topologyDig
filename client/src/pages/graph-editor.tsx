@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ReactFlow, Background, Controls, MiniMap, useReactFlow } from "reactflow";
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  useReactFlow,
+} from "reactflow";
 import "reactflow/dist/style.css";
 
 import { useGraphStore } from "@/lib/graph-store";
@@ -10,8 +16,20 @@ import ExportModal from "@/components/export-modal";
 import LayoutToolbar from "@/components/layout-toolbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Undo2, Redo2, Download, Upload, Edit, Keyboard } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Undo2,
+  Redo2,
+  Download,
+  Upload,
+  Edit,
+  Keyboard,
+  Save,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
 import { parseDotGraph } from "@/lib/dot-parser";
@@ -52,7 +70,7 @@ export default function GraphEditor() {
   useEffect(() => {
     const handleUpdateTextNode = (event: CustomEvent) => {
       const { id, text } = event.detail;
-      const node = nodes.find(n => n.id === id);
+      const node = nodes.find((n) => n.id === id);
       if (node) {
         updateNode(id, { data: { ...node.data, text } as any });
       }
@@ -60,20 +78,32 @@ export default function GraphEditor() {
 
     const handleUpdateTextNodeStyle = (event: CustomEvent) => {
       const { id, property, value } = event.detail;
-      const node = nodes.find(n => n.id === id);
+      const node = nodes.find((n) => n.id === id);
       if (node) {
-        updateNode(id, { 
-          data: { ...node.data, [property]: value } as any
+        updateNode(id, {
+          data: { ...node.data, [property]: value } as any,
         });
       }
     };
 
-    window.addEventListener('updateTextNode', handleUpdateTextNode as EventListener);
-    window.addEventListener('updateTextNodeStyle', handleUpdateTextNodeStyle as EventListener);
+    window.addEventListener(
+      "updateTextNode",
+      handleUpdateTextNode as EventListener,
+    );
+    window.addEventListener(
+      "updateTextNodeStyle",
+      handleUpdateTextNodeStyle as EventListener,
+    );
 
     return () => {
-      window.removeEventListener('updateTextNode', handleUpdateTextNode as EventListener);
-      window.removeEventListener('updateTextNodeStyle', handleUpdateTextNodeStyle as EventListener);
+      window.removeEventListener(
+        "updateTextNode",
+        handleUpdateTextNode as EventListener,
+      );
+      window.removeEventListener(
+        "updateTextNodeStyle",
+        handleUpdateTextNodeStyle as EventListener,
+      );
     };
   }, [updateNode, nodes]);
 
@@ -91,7 +121,7 @@ export default function GraphEditor() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Export Successful",
         description: "Graph exported to JSON file successfully.",
@@ -117,10 +147,11 @@ export default function GraphEditor() {
       reader.onload = (event) => {
         try {
           const jsonData = JSON.parse(event.target?.result as string);
-          const { nodes: importedNodes, edges: importedEdges } = importFromJSON(jsonData);
+          const { nodes: importedNodes, edges: importedEdges } =
+            importFromJSON(jsonData);
           setNodes(importedNodes);
           setEdges(importedEdges);
-          
+
           toast({
             title: "Import Successful",
             description: "Graph imported from JSON file successfully.",
@@ -128,7 +159,8 @@ export default function GraphEditor() {
         } catch (error) {
           toast({
             title: "Import Failed",
-            description: "Failed to import graph. Please check the JSON format.",
+            description:
+              "Failed to import graph. Please check the JSON format.",
             variant: "destructive",
           });
         }
@@ -150,10 +182,11 @@ export default function GraphEditor() {
       reader.onload = (event) => {
         try {
           const dotContent = event.target?.result as string;
-          const { nodes: importedNodes, edges: importedEdges } = parseDotGraph(dotContent);
+          const { nodes: importedNodes, edges: importedEdges } =
+            parseDotGraph(dotContent);
           setNodes(importedNodes);
           setEdges(importedEdges);
-          
+
           toast({
             title: "DOT Import Successful",
             description: `Imported ${importedNodes.length} nodes and ${importedEdges.length} edges with hierarchical layout.`,
@@ -161,7 +194,8 @@ export default function GraphEditor() {
         } catch (error) {
           toast({
             title: "DOT Import Failed",
-            description: "Failed to parse DOT file. Please check the file format.",
+            description:
+              "Failed to parse DOT file. Please check the file format.",
             variant: "destructive",
           });
         }
@@ -191,35 +225,38 @@ export default function GraphEditor() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Prevent shortcuts when typing in input fields
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      if (
+        event.target instanceof HTMLInputElement ||
+        event.target instanceof HTMLTextAreaElement
+      ) {
         return;
       }
 
       const isCtrl = event.ctrlKey || event.metaKey;
       const isShift = event.shiftKey;
 
-      if (isCtrl && !isShift && event.key === 'c') {
+      if (isCtrl && !isShift && event.key === "c") {
         event.preventDefault();
         copySelectedElements();
         toast({
           title: "Copied",
           description: "Selected elements copied to clipboard.",
         });
-      } else if (isCtrl && !isShift && event.key === 'v') {
+      } else if (isCtrl && !isShift && event.key === "v") {
         event.preventDefault();
         pasteElements();
         toast({
           title: "Pasted",
           description: "Elements pasted from clipboard.",
         });
-      } else if (event.key === 'Delete' || event.key === 'Backspace') {
+      } else if (event.key === "Delete" || event.key === "Backspace") {
         event.preventDefault();
         deleteSelectedElements();
         toast({
           title: "Deleted",
           description: "Selected elements deleted.",
         });
-      } else if (isCtrl && isShift && event.key === 'Z') {
+      } else if (isCtrl && isShift && event.key === "Z") {
         event.preventDefault();
         if (canRedo) {
           redo();
@@ -228,7 +265,7 @@ export default function GraphEditor() {
             description: "Action has been redone.",
           });
         }
-      } else if (isCtrl && !isShift && event.key === 'z') {
+      } else if (isCtrl && !isShift && event.key === "z") {
         event.preventDefault();
         if (canUndo) {
           undo();
@@ -240,16 +277,27 @@ export default function GraphEditor() {
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [copySelectedElements, pasteElements, deleteSelectedElements, undo, redo, canUndo, canRedo, toast]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [
+    copySelectedElements,
+    pasteElements,
+    deleteSelectedElements,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    toast,
+  ]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold text-gray-800">2D Graph Editor</h1>
+          <h1 className="text-xl font-semibold text-gray-800">
+            2D Graph Editor
+          </h1>
           <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
             Warehouse Topology Designer
           </span>
@@ -280,7 +328,9 @@ export default function GraphEditor() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => window.dispatchEvent(new CustomEvent('openPropertyModal'))}
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("openPropertyModal"))
+            }
             disabled={!selectedNode && !selectedEdge}
             title="Edit Properties (Double-click on element)"
           >
@@ -293,17 +343,22 @@ export default function GraphEditor() {
             <Upload className="h-4 w-4 mr-2" />
             Import JSON
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDotImport}>
+          {/* <Button variant="outline" size="sm" onClick={handleDotImport}>
             <Upload className="h-4 w-4 mr-2" />
             Import DOT
-          </Button>
+          </Button> */}
           <Button size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export JSON
           </Button>
 
           <Separator orientation="vertical" className="h-6" />
+          <Button size="sm">
+            <Save className="h-4 w-4 mr-2" />
+            Save
+          </Button>
 
+          {/* 
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="sm">
@@ -312,16 +367,30 @@ export default function GraphEditor() {
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
               <div className="text-sm space-y-1">
-                <div><strong>Ctrl+C</strong> - Copy selected elements</div>
-                <div><strong>Ctrl+V</strong> - Paste elements</div>
-                <div><strong>Delete</strong> - Delete selected elements</div>
-                <div><strong>Ctrl+Z</strong> - Undo</div>
-                <div><strong>Ctrl+Shift+Z</strong> - Redo</div>
-                <div><strong>Shift+Click</strong> - Multi-select</div>
-                <div><strong>Double-click</strong> - Edit properties</div>
+                <div>
+                  <strong>Ctrl+C</strong> - Copy selected elements
+                </div>
+                <div>
+                  <strong>Ctrl+V</strong> - Paste elements
+                </div>
+                <div>
+                  <strong>Delete</strong> - Delete selected elements
+                </div>
+                <div>
+                  <strong>Ctrl+Z</strong> - Undo
+                </div>
+                <div>
+                  <strong>Ctrl+Shift+Z</strong> - Redo
+                </div>
+                <div>
+                  <strong>Shift+Click</strong> - Multi-select
+                </div>
+                <div>
+                  <strong>Double-click</strong> - Edit properties
+                </div>
               </div>
             </TooltipContent>
-          </Tooltip>
+          </Tooltip> */}
         </div>
       </header>
 
@@ -343,16 +412,21 @@ export default function GraphEditor() {
             onPaneClick={onPaneClick}
             onInit={setReactFlowInstance}
             onDrop={(event) => {
-              const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-              const position = reactFlowBounds ? {
-                x: event.clientX - reactFlowBounds.left - 75,
-                y: event.clientY - reactFlowBounds.top - 25,
-              } : { x: event.clientX - 75, y: event.clientY - 25 };
-              
-              const type = event.dataTransfer.getData('application/reactflow') as any;
+              const reactFlowBounds =
+                reactFlowWrapper.current?.getBoundingClientRect();
+              const position = reactFlowBounds
+                ? {
+                    x: event.clientX - reactFlowBounds.left - 75,
+                    y: event.clientY - reactFlowBounds.top - 25,
+                  }
+                : { x: event.clientX - 75, y: event.clientY - 25 };
+
+              const type = event.dataTransfer.getData(
+                "application/reactflow",
+              ) as any;
               if (type) {
                 event.preventDefault();
-                import('../lib/graph-utils').then(({ createNewNode }) => {
+                import("../lib/graph-utils").then(({ createNewNode }) => {
                   const newNode = createNewNode(type);
                   newNode.position = position;
                   setNodes([...nodes, newNode]);
@@ -363,7 +437,7 @@ export default function GraphEditor() {
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
             fitView
-            attributionPosition="bottom-left"
+            attributionPosition={false}
             className="bg-gray-50"
             multiSelectionKeyCode="Shift"
             selectionKeyCode="Shift"
@@ -372,29 +446,12 @@ export default function GraphEditor() {
           >
             <Background color="#e0e0e0" gap={20} size={1} />
             <Controls />
-            <MiniMap
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case "simple":
-                    return "#9e9e9e";
-                  case "scanner":
-                    return "#4caf50";
-                  case "eject":
-                    return "#ff9800";
-                  default:
-                    return "#9e9e9e";
-                }
-              }}
-              maskColor="rgba(255, 255, 255, 0.8)"
-              className="bg-white border border-gray-300 rounded-lg"
-            />
+
           </ReactFlow>
-          
+
           {/* Auto Layout Toolbar */}
           <LayoutToolbar reactFlowInstance={reactFlowInstance} />
         </div>
-
-
       </div>
 
       <PropertyModal />
