@@ -10,7 +10,7 @@ import ExportModal from "@/components/export-modal";
 import LayoutToolbar from "@/components/layout-toolbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Undo2, Redo2, Download, Upload } from "lucide-react";
+import { Undo2, Redo2, Download, Upload, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
 
@@ -150,6 +150,18 @@ export default function GraphEditor() {
 
           <Separator orientation="vertical" className="h-6" />
 
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => window.dispatchEvent(new CustomEvent('openPropertyModal'))}
+            disabled={!selectedNode && !selectedEdge}
+            title="Edit Properties (Double-click on element)"
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+
+          <Separator orientation="vertical" className="h-6" />
+
           <Button variant="outline" size="sm" onClick={handleImport}>
             <Upload className="h-4 w-4 mr-2" />
             Import JSON
@@ -176,6 +188,7 @@ export default function GraphEditor() {
             onNodeClick={onNodeClick}
             onNodeDoubleClick={onNodeDoubleClick}
             onEdgeClick={onEdgeClick}
+            onEdgeDoubleClick={onEdgeDoubleClick}
             onPaneClick={onPaneClick}
             onDrop={onDrop}
             onDragOver={onDragOver}
