@@ -50,16 +50,15 @@ export { mapNodeType };
 
 export function createNewNode(type: NodeType): Node<NodeData> {
   const timestamp = Date.now();
-  const code = `${type}_${timestamp}`;
   
   return {
     id: timestamp.toString(),
     type: 'custom',
     position: { x: 100, y: 100 },
     data: {
-      code,
+      code: '',
       type,
-      cmd: parseInt(code.slice(-3)) || timestamp % 1000,
+      cmd: 0,
       attrs: {},
     },
   };
