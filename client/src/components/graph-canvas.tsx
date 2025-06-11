@@ -12,6 +12,8 @@ import "reactflow/dist/style.css";
 import { useGraphStore } from "@/lib/graph-store";
 import { NODE_TYPES, EDGE_TYPES } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
+import { useAlignmentGuides } from "@/hooks/use-alignment-guides";
+import AlignmentGuides from "@/components/alignment-guides";
 
 interface GraphCanvasProps {
   className?: string;
@@ -34,6 +36,15 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
 
   const { toast } = useToast();
   const { fitView, zoomIn, zoomOut, setCenter } = useReactFlow();
+  
+  // Add alignment guides functionality
+  const { alignmentLines, draggedNode, processNodeChanges } = useAlignmentGuides(nodes);
+
+  // Enhanced node change handler with alignment
+  const handleNodesChange = useCallback((changes) => {
+    const processedChanges = processNodeChanges(changes);
+    onNodesChange(processedChanges);
+  }, [processNodeChanges, onNodesChange]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -142,7 +153,7 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
   const reactFlowProps = useMemo(() => ({
     nodes,
     edges,
-    onNodesChange,
+    onNodesChange: handleNodesChange,
     onEdgesChange,
     onConnect: handleConnect,
     onNodeClick,
@@ -172,7 +183,7 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
   }), [
     nodes,
     edges,
-    onNodesChange,
+    handleNodesChange,
     onEdgesChange,
     handleConnect,
     onNodeClick,

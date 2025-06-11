@@ -159,7 +159,7 @@ const CustomEdge = memo(({
       >
         <animate
           attributeName="stroke-dashoffset"
-          values="0;-15;0"
+          values="0;-15"
           dur="1.5s"
           repeatCount="indefinite"
         />
