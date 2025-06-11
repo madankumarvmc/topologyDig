@@ -41,6 +41,24 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setEditText(e.target.value);
+    // Auto-resize based on content
+    autoResizeToFitText(e.target.value);
+  };
+
+  const autoResizeToFitText = (text: string) => {
+    // Calculate approximate width and height based on text length
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (context) {
+      context.font = `${data.fontSize || 14}px Arial`;
+      const lines = text.split('\n');
+      const maxLineWidth = Math.max(...lines.map(line => context.measureText(line).width));
+      const minWidth = Math.max(100, maxLineWidth + 40); // Add padding
+      const minHeight = Math.max(40, lines.length * (data.fontSize || 14) * 1.5 + 20); // Line height + padding
+      
+      updateProperty('width', minWidth);
+      updateProperty('height', minHeight);
+    }
   };
 
   const handleTextSubmit = () => {
@@ -49,6 +67,8 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
     window.dispatchEvent(new CustomEvent('updateTextNode', {
       detail: { id, text: editText }
     }));
+    // Auto-resize after editing is complete
+    autoResizeToFitText(editText);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -120,22 +140,26 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
           </div>
         )}
         
-        {/* Resize Handles */}
+        {/* Figjam-style Resize Handles */}
         {selected && (
           <>
-            {/* Corner resize handle */}
+            {/* Top-left corner */}
             <div
-              className="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 cursor-se-resize opacity-70 hover:opacity-100 rounded-tl"
+              className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-nw-resize rounded-sm"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
+                const startPosX = e.currentTarget.parentElement?.getBoundingClientRect().left || 0;
+                const startPosY = e.currentTarget.parentElement?.getBoundingClientRect().top || 0;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  const newWidth = Math.max(100, startWidth + (e.clientX - startX));
-                  const newHeight = Math.max(30, startHeight + (e.clientY - startY));
+                  const deltaX = e.clientX - startX;
+                  const deltaY = e.clientY - startY;
+                  const newWidth = Math.max(50, startWidth - deltaX);
+                  const newHeight = Math.max(20, startHeight - deltaY);
                   updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
@@ -150,17 +174,23 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
               }}
             />
             
-            {/* Right edge resize handle */}
+            {/* Top-right corner */}
             <div
-              className="absolute top-2 bottom-2 right-0 w-1 bg-blue-500 cursor-e-resize opacity-50 hover:opacity-100"
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-ne-resize rounded-sm"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 const startX = e.clientX;
+                const startY = e.clientY;
                 const startWidth = data.width || 150;
+                const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  const newWidth = Math.max(100, startWidth + (e.clientX - startX));
+                  const deltaX = e.clientX - startX;
+                  const deltaY = e.clientY - startY;
+                  const newWidth = Math.max(50, startWidth + deltaX);
+                  const newHeight = Math.max(20, startHeight - deltaY);
                   updateProperty('width', newWidth);
+                  updateProperty('height', newHeight);
                 };
                 
                 const handleMouseUp = () => {
@@ -173,16 +203,51 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
               }}
             />
             
-            {/* Bottom edge resize handle */}
+            {/* Bottom-left corner */}
             <div
-              className="absolute bottom-0 left-2 right-2 h-1 bg-blue-500 cursor-s-resize opacity-50 hover:opacity-100"
+              className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-sw-resize rounded-sm"
               onMouseDown={(e) => {
                 e.stopPropagation();
+                const startX = e.clientX;
                 const startY = e.clientY;
+                const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  const newHeight = Math.max(30, startHeight + (e.clientY - startY));
+                  const deltaX = e.clientX - startX;
+                  const deltaY = e.clientY - startY;
+                  const newWidth = Math.max(50, startWidth - deltaX);
+                  const newHeight = Math.max(20, startHeight + deltaY);
+                  updateProperty('width', newWidth);
+                  updateProperty('height', newHeight);
+                };
+                
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+            
+            {/* Bottom-right corner */}
+            <div
+              className="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-se-resize rounded-sm"
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                const startX = e.clientX;
+                const startY = e.clientY;
+                const startWidth = data.width || 150;
+                const startHeight = data.height || 40;
+                
+                const handleMouseMove = (e: MouseEvent) => {
+                  const deltaX = e.clientX - startX;
+                  const deltaY = e.clientY - startY;
+                  const newWidth = Math.max(50, startWidth + deltaX);
+                  const newHeight = Math.max(20, startHeight + deltaY);
+                  updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
                 
