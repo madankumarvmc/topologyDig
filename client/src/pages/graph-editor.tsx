@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ReactFlow, Background, Controls, MiniMap, useReactFlow } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -18,6 +18,7 @@ import { parseDotGraph } from "@/lib/dot-parser";
 
 export default function GraphEditor() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const {
     nodes,
     edges,
@@ -311,6 +312,7 @@ export default function GraphEditor() {
             onEdgeClick={onEdgeClick}
             onEdgeDoubleClick={onEdgeDoubleClick}
             onPaneClick={onPaneClick}
+            onInit={setReactFlowInstance}
             onDrop={(event) => {
               const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
               const position = reactFlowBounds ? {
@@ -360,7 +362,7 @@ export default function GraphEditor() {
           </ReactFlow>
           
           {/* Auto Layout Toolbar */}
-          <LayoutToolbar />
+          <LayoutToolbar reactFlowInstance={reactFlowInstance} />
         </div>
 
 
