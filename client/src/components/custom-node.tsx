@@ -4,31 +4,36 @@ import { NodeData } from '@/lib/constants';
 
 const CustomNode = memo(({ data, selected }: NodeProps<NodeData>) => {
   const getNodeStyle = () => {
-    const baseStyle = "w-12 h-12 flex items-center justify-center cursor-pointer transition-all duration-200 relative";
+    const baseStyle = "w-16 h-16 flex items-center justify-center cursor-pointer transition-all duration-200 relative";
+    const selectedStyle = selected ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:shadow-md';
     
     switch (data.type) {
       case 'simple':
-        return `${baseStyle} rounded-full bg-gray-100 border-2 border-gray-400 ${
-          selected ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:shadow-md'
-        }`;
+        // Circle - Gray filled
+        return `${baseStyle} rounded-full bg-gray-200 border-2 border-gray-500 ${selectedStyle}`;
       case 'scanner':
-        return `${baseStyle} bg-green-100 border-2 border-green-500 ${
-          selected ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:shadow-md'
-        }`;
+        // Diamond - Green filled
+        return `${baseStyle} bg-green-200 border-2 border-green-600 transform rotate-45 ${selectedStyle}`;
       case 'eject':
-        return `${baseStyle} rounded bg-orange-100 border-2 border-orange-500 ${
-          selected ? 'ring-2 ring-blue-500 ring-offset-2' : 'hover:shadow-md'
-        }`;
+        // Box - Orange filled
+        return `${baseStyle} rounded bg-orange-200 border-2 border-orange-600 ${selectedStyle}`;
+      case 'special':
+        // Double circle - Yellow/Cyan filled for V-nodes
+        const isVNode = data.code.startsWith('V');
+        const bgColor = isVNode && parseInt(data.code.slice(1)) > 30 ? 'bg-cyan-200 border-cyan-600' : 'bg-yellow-200 border-yellow-600';
+        return `${baseStyle} rounded-full ${bgColor} border-4 border-double ${selectedStyle}`;
+      case 'sblfeed':
+        // Square - Light blue filled
+        return `${baseStyle} rounded-none bg-blue-100 border-2 border-blue-500 ${selectedStyle}`;
       default:
-        return `${baseStyle} rounded-full bg-gray-100 border-2 border-gray-400`;
+        return `${baseStyle} rounded-full bg-gray-200 border-2 border-gray-500`;
     }
   };
 
-  const getNodeShape = () => {
+  const getContentStyle = () => {
+    // Counter-rotate content for diamond shapes
     if (data.type === 'scanner') {
-      return {
-        clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)'
-      };
+      return { transform: 'rotate(-45deg)' };
     }
     return {};
   };
@@ -58,23 +63,19 @@ const CustomNode = memo(({ data, selected }: NodeProps<NodeData>) => {
   return (
     <div className="relative">
       <Handle type="target" position={Position.Left} className="w-2 h-2" />
-      <div className={getNodeStyle()} style={getNodeShape()}>
-        <span className="text-xs font-medium text-gray-700 select-none">
-          {data.code}
-        </span>
+      <div className={getNodeStyle()}>
+        <div style={getContentStyle()} className="text-center">
+          <span className="text-xs font-bold text-gray-800 select-none block leading-tight">
+            {data.code}
+          </span>
+          {attributeLabels.length > 0 && (
+            <span className="text-[10px] text-gray-600 select-none block leading-none mt-1">
+              {attributeLabels.slice(0, 2).join(' ')}
+            </span>
+          )}
+        </div>
       </div>
       <Handle type="source" position={Position.Right} className="w-2 h-2" />
-      
-      {/* Attribute labels */}
-      {attributeLabels.length > 0 && (
-        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 z-10">
-          <div className="bg-white border border-gray-300 rounded px-2 py-1 shadow-sm">
-            <div className="text-xs text-gray-600 whitespace-nowrap">
-              {attributeLabels.join(', ')}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 });

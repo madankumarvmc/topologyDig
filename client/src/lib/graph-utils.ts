@@ -1,6 +1,36 @@
 import { Node, Edge } from 'reactflow';
 import { NodeData, NodeType } from './constants';
 
+function mapNodeType(nodeData: any): NodeType {
+  const code = nodeData.code || '';
+  const type = nodeData.type || '';
+  const attrs = nodeData.attrs || {};
+  
+  // SBL Feed nodes (squares) - codes like 61, 63, 65
+  if (attrs.sblFeed === 'true' || code.match(/^(61|63|65)$/)) {
+    return 'sblfeed';
+  }
+  
+  // Special nodes (double circles) - V-prefixed nodes
+  if (code.startsWith('V')) {
+    return 'special';
+  }
+  
+  // Map based on JSON type
+  switch (type.toUpperCase()) {
+    case 'SIMPLE':
+      return 'simple';
+    case 'SCANNER':
+      return 'scanner';
+    case 'EJECT':
+      return 'eject';
+    default:
+      return 'simple';
+  }
+}
+
+export { mapNodeType };
+
 export function createNewNode(type: NodeType): Node<NodeData> {
   const timestamp = Date.now();
   const code = `${type}_${timestamp}`;
@@ -68,7 +98,7 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
         },
         data: {
           code: nodeData.code || `node_${index}`,
-          type: (nodeData.type || 'SIMPLE').toLowerCase() as NodeType,
+          type: mapNodeType(nodeData),
           cmd: nodeData.cmd || index,
           attrs: nodeData.attrs || {},
         },

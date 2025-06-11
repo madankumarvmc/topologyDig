@@ -2,7 +2,7 @@ import { Node, Edge } from 'reactflow';
 import CustomNode from '@/components/custom-node';
 import CustomEdge from '@/components/custom-edge';
 
-export type NodeType = 'simple' | 'scanner' | 'eject';
+export type NodeType = 'simple' | 'scanner' | 'eject' | 'special' | 'sblfeed';
 
 export interface NodeData {
   code: string;
@@ -20,12 +20,14 @@ export const EDGE_TYPES = {
   smoothstep: CustomEdge,
 };
 
-export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject'];
+export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject', 'special', 'sblfeed'];
 
 export const DEFAULT_NODE_ATTRS: Record<NodeType, Record<string, string>> = {
   simple: {},
   scanner: {},
   eject: {},
+  special: {},
+  sblfeed: { sblFeed: 'true' },
 };
 
 export const QUICK_ATTRIBUTES = [
