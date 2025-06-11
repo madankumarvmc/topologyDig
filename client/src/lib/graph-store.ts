@@ -244,6 +244,11 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       const newNode = createNewNode(type as NodeType);
       newNode.position = position;
       
+      console.log('Node after createNewNode:', newNode);
+      console.log('Node data:', newNode.data);
+      console.log('Code field:', newNode.data.code);
+      console.log('Command field:', newNode.data.cmd);
+      
       set((state) => ({
         nodes: [...state.nodes, newNode],
         selectedNode: newNode,
