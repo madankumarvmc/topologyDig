@@ -49,11 +49,14 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
 export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges: Edge[] } {
   const nodes: Node<NodeData>[] = [];
   const edges: Edge[] = [];
+  const nodeCodeToId = new Map();
 
+  // Import nodes
   if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
     jsonData.nodes.forEach((nodeData: any, index: number) => {
+      const nodeId = (index + 1).toString();
       const node: Node<NodeData> = {
-        id: (index + 1).toString(),
+        id: nodeId,
         type: 'custom',
         position: { 
           x: 100 + (index % 5) * 120, 
@@ -67,6 +70,33 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
         },
       };
       nodes.push(node);
+      nodeCodeToId.set(nodeData.code, nodeId);
+    });
+  }
+
+  // Import edges
+  if (jsonData.edges && Array.isArray(jsonData.edges)) {
+    jsonData.edges.forEach((edgeData: any, index: number) => {
+      const sourceId = nodeCodeToId.get(edgeData.source);
+      const targetId = nodeCodeToId.get(edgeData.target);
+      
+      if (sourceId && targetId) {
+        const edge: Edge = {
+          id: `edge-${index + 1}`,
+          source: sourceId,
+          target: targetId,
+          type: 'custom',
+          label: edgeData.label || "",
+          markerEnd: { type: 'arrowclosed' },
+          style: {
+            stroke: edgeData.color === "blue" ? "#3b82f6" :
+                    edgeData.color === "red" ? "#ef4444" :
+                    edgeData.color === "green" ? "#22c55e" : "#666",
+            strokeWidth: edgeData.penwidth || 2,
+          },
+        };
+        edges.push(edge);
+      }
     });
   }
 

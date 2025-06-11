@@ -313,7 +313,7 @@ export default function PropertyModal() {
                   <Input
                     id="label"
                     type="text"
-                    value={selectedEdge.label || ""}
+                    value={(selectedEdge.label as string) || ""}
                     onChange={(e) => handleUpdateEdge('label', e.target.value)}
                     placeholder="Edge label (e.g., distance, time)"
                     className="mt-1"
