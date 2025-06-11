@@ -44,7 +44,7 @@ interface GraphActions {
   undo: () => void;
   redo: () => void;
   saveToHistory: () => void;
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'force' | 'grid') => void;
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal') => void;
 }
 
 export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
@@ -251,11 +251,11 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
     }
   },
 
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'force' | 'grid') => {
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal') => {
     const { nodes, edges } = get();
     
     // Import layout utilities dynamically to avoid circular dependencies
-    import('../lib/layout-utils').then(({ getHierarchicalLayout, getHorizontalLayout, getForceLayout, getGridLayout }) => {
+    import('../lib/layout-utils').then(({ getHierarchicalLayout, getHorizontalLayout }) => {
       let layoutedElements;
       
       switch (layoutType) {
@@ -264,12 +264,6 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
           break;
         case 'horizontal':
           layoutedElements = getHorizontalLayout(nodes, edges);
-          break;
-        case 'force':
-          layoutedElements = getForceLayout(nodes, edges);
-          break;
-        case 'grid':
-          layoutedElements = getGridLayout(nodes, edges);
           break;
         default:
           layoutedElements = getHierarchicalLayout(nodes, edges);

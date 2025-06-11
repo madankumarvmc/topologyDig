@@ -13,7 +13,13 @@ export function getLayoutedElements(
   nodeHeight = 36
 ) {
   const isHorizontal = direction === 'LR';
-  dagreGraph.setGraph({ rankdir: direction });
+  dagreGraph.setGraph({ 
+    rankdir: direction,
+    nodesep: isHorizontal ? 80 : 50,
+    ranksep: isHorizontal ? 120 : 80,
+    marginx: 20,
+    marginy: 20
+  });
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -36,7 +42,21 @@ export function getLayoutedElements(
     };
   });
 
-  return { nodes: layoutedNodes, edges };
+  // Improve edge routing for better visual clarity
+  const layoutedEdges = edges.map((edge) => ({
+    ...edge,
+    type: 'smoothstep',
+    style: {
+      ...edge.style,
+      strokeWidth: 2,
+    },
+    pathOptions: {
+      offset: 20,
+      borderRadius: 10,
+    },
+  }));
+
+  return { nodes: layoutedNodes, edges: layoutedEdges };
 }
 
 export function getHierarchicalLayout(
@@ -50,7 +70,8 @@ export function getHorizontalLayout(
   nodes: Node<NodeData>[],
   edges: Edge[]
 ) {
-  return getLayoutedElements(nodes, edges, 'LR', 120, 80);
+  // Use better spacing for horizontal layout to prevent edge overlaps
+  return getLayoutedElements(nodes, edges, 'LR', 150, 100);
 }
 
 export function getForceLayout(

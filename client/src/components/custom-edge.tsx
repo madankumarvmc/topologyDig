@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { EdgeProps, getBezierPath, EdgeLabelRenderer } from 'reactflow';
+import { EdgeProps, getBezierPath, getSmoothStepPath, EdgeLabelRenderer } from 'reactflow';
 
 const CustomEdge = memo(({
   id,
@@ -13,14 +13,18 @@ const CustomEdge = memo(({
   markerEnd,
   label,
   selected,
+  pathOptions,
 }: EdgeProps) => {
-  const [edgePath, labelX, labelY] = getBezierPath({
+  // Use smooth step path for better routing, especially in horizontal layouts
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
+    borderRadius: pathOptions?.borderRadius || 15,
+    offset: pathOptions?.offset || 20,
   });
 
   const edgeStyle = {

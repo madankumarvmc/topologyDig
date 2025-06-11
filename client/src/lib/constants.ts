@@ -17,6 +17,7 @@ export const NODE_TYPES = {
 
 export const EDGE_TYPES = {
   custom: CustomEdge,
+  smoothstep: CustomEdge,
 };
 
 export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject'];
