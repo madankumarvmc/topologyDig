@@ -13,12 +13,27 @@ export function getLayoutedElements(
   nodeHeight = 36
 ) {
   const isHorizontal = direction === 'LR';
+  const nodeCount = nodes.length;
+  
+  // Use much tighter spacing for large graphs to fit on screen
+  let nodesep, ranksep;
+  if (nodeCount > 100) {
+    nodesep = isHorizontal ? 30 : 25;
+    ranksep = isHorizontal ? 60 : 50;
+  } else if (nodeCount > 50) {
+    nodesep = isHorizontal ? 50 : 35;
+    ranksep = isHorizontal ? 80 : 60;
+  } else {
+    nodesep = isHorizontal ? 80 : 50;
+    ranksep = isHorizontal ? 120 : 80;
+  }
+  
   dagreGraph.setGraph({ 
     rankdir: direction,
-    nodesep: isHorizontal ? 80 : 50,
-    ranksep: isHorizontal ? 120 : 80,
-    marginx: 20,
-    marginy: 20
+    nodesep: nodesep,
+    ranksep: ranksep,
+    marginx: 10,
+    marginy: 10
   });
 
   nodes.forEach((node) => {
@@ -70,8 +85,12 @@ export function getHorizontalLayout(
   nodes: Node<NodeData>[],
   edges: Edge[]
 ) {
-  // Use better spacing for horizontal layout to prevent edge overlaps
-  return getLayoutedElements(nodes, edges, 'LR', 150, 100);
+  const nodeCount = nodes.length;
+  // Adjust node size based on graph size for better screen fit
+  const nodeWidth = nodeCount > 100 ? 100 : 150;
+  const nodeHeight = nodeCount > 100 ? 60 : 100;
+  
+  return getLayoutedElements(nodes, edges, 'LR', nodeWidth, nodeHeight);
 }
 
 export function getForceLayout(

@@ -7,7 +7,11 @@ import {
   ArrowRightFromLine 
 } from "lucide-react";
 
-export default function LayoutToolbar() {
+interface LayoutToolbarProps {
+  reactFlowInstance?: any;
+}
+
+export default function LayoutToolbar({ reactFlowInstance }: LayoutToolbarProps) {
   const { autoLayout, nodes } = useGraphStore();
   const { toast } = useToast();
 
@@ -21,7 +25,7 @@ export default function LayoutToolbar() {
       return;
     }
 
-    autoLayout(layoutType);
+    autoLayout(layoutType, reactFlowInstance);
     
     const layoutNames = {
       hierarchical: "Vertical Layout",
@@ -30,9 +34,9 @@ export default function LayoutToolbar() {
 
     toast({
       title: "Layout Applied",
-      description: `${layoutNames[layoutType]} applied successfully.`,
+      description: `${layoutNames[layoutType]} applied successfully.${nodes.length > 50 ? ' View automatically fitted to screen.' : ''}`,
     });
-  }, [autoLayout, nodes.length, toast]);
+  }, [autoLayout, nodes.length, toast, reactFlowInstance]);
 
   if (nodes.length === 0) {
     return null;

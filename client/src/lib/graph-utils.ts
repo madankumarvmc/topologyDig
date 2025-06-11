@@ -52,14 +52,19 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
 
   // Import nodes
   if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
+    const nodeCount = jsonData.nodes.length;
+    // Use tighter spacing for large graphs
+    const spacing = nodeCount > 100 ? { x: 80, y: 60 } : { x: 150, y: 120 };
+    const nodesPerRow = nodeCount > 100 ? 20 : 10;
+    
     jsonData.nodes.forEach((nodeData: any, index: number) => {
       const nodeId = (index + 1).toString();
       const node: Node<NodeData> = {
         id: nodeId,
         type: 'custom',
         position: { 
-          x: 100 + (index % 10) * 150, 
-          y: 100 + Math.floor(index / 10) * 120 
+          x: 50 + (index % nodesPerRow) * spacing.x, 
+          y: 50 + Math.floor(index / nodesPerRow) * spacing.y 
         },
         data: {
           code: nodeData.code || `node_${index}`,

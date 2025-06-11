@@ -49,7 +49,7 @@ interface GraphActions {
   undo: () => void;
   redo: () => void;
   saveToHistory: () => void;
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal') => void;
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal', reactFlowInstance?: any) => void;
   copySelectedElements: () => void;
   pasteElements: () => void;
 }
@@ -357,7 +357,7 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
     }
   },
 
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal') => {
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal', reactFlowInstance?: any) => {
     const { nodes, edges } = get();
     
     // Import layout utilities dynamically to avoid circular dependencies
@@ -381,6 +381,18 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
         selectedNode: null,
         selectedEdge: null,
       });
+      
+      // Auto-fit view for large graphs after layout
+      if (reactFlowInstance && nodes.length > 50) {
+        setTimeout(() => {
+          reactFlowInstance.fitView({ 
+            padding: 0.1,
+            minZoom: 0.1,
+            maxZoom: 1
+          });
+        }, 100);
+      }
+      
       get().saveToHistory();
     });
   },
