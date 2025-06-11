@@ -18,7 +18,13 @@ export function createNewNode(type: NodeType): Node<NodeData> {
   };
 }
 
-export function exportToJSON(nodes: Node<NodeData>[]) {
+export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
+  // Create a map of node IDs to their codes for edge mapping
+  const nodeIdToCode = new Map();
+  nodes.forEach(node => {
+    nodeIdToCode.set(node.id, node.data.code);
+  });
+
   return {
     whId: Date.now(),
     nodes: nodes.map(node => ({
@@ -27,6 +33,16 @@ export function exportToJSON(nodes: Node<NodeData>[]) {
       cmd: node.data.cmd,
       attrs: node.data.attrs || {},
     })),
+    edges: edges.map(edge => ({
+      source: nodeIdToCode.get(edge.source) || edge.source,
+      target: nodeIdToCode.get(edge.target) || edge.target,
+      label: edge.label || "",
+      color: edge.style?.stroke === "#3b82f6" ? "blue" : 
+             edge.style?.stroke === "#ef4444" ? "red" :
+             edge.style?.stroke === "#22c55e" ? "green" : "",
+      penwidth: edge.style?.strokeWidth ? parseFloat(edge.style.strokeWidth.toString()) : 2.0,
+    })),
+    loops: [], // Will be populated in phase 2 with loop detection
   };
 }
 

@@ -9,10 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function ExportModal() {
   const [isOpen, setIsOpen] = useState(false);
-  const { nodes } = useGraphStore();
+  const { nodes, edges } = useGraphStore();
   const { toast } = useToast();
 
-  const jsonOutput = JSON.stringify(exportToJSON(nodes), null, 2);
+  const jsonOutput = JSON.stringify(exportToJSON(nodes, edges), null, 2);
 
   const handleCopy = useCallback(async () => {
     try {

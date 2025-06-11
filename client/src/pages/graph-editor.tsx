@@ -5,7 +5,7 @@ import "reactflow/dist/style.css";
 import { useGraphStore } from "@/lib/graph-store";
 import { NODE_TYPES, EDGE_TYPES } from "@/lib/constants";
 import NodeToolbar from "@/components/node-toolbar";
-import PropertyPanel from "@/components/property-panel";
+import PropertyModal from "@/components/property-modal";
 import ExportModal from "@/components/export-modal";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -37,7 +37,7 @@ export default function GraphEditor() {
 
   const handleExport = useCallback(() => {
     try {
-      const data = exportToJSON(nodes);
+      const data = exportToJSON(nodes, edges);
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
       });
@@ -61,7 +61,7 @@ export default function GraphEditor() {
         variant: "destructive",
       });
     }
-  }, [nodes, toast]);
+  }, [nodes, edges, toast]);
 
   const handleImport = useCallback(() => {
     const input = document.createElement("input");
@@ -198,10 +198,10 @@ export default function GraphEditor() {
           </ReactFlow>
         </div>
 
-        {/* Right Property Panel */}
-        <PropertyPanel />
+
       </div>
 
+      <PropertyModal />
       <ExportModal />
     </div>
   );
