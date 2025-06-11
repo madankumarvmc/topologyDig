@@ -74,13 +74,17 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
 
   return {
     whId: Date.now(),
-    nodes: nodes.map(node => ({
+    nodes: nodes.filter(node => node.type === 'custom').map(node => ({
       code: node.data.code,
       type: node.data.type.toUpperCase(),
       cmd: node.data.cmd,
       attrs: node.data.attrs || {},
     })),
-    edges: edges.map(edge => ({
+    edges: edges.filter(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      return sourceNode?.type === 'custom' && targetNode?.type === 'custom';
+    }).map(edge => ({
       from: nodeIdToCode.get(edge.source) || edge.source,
       to: nodeIdToCode.get(edge.target) || edge.target,
       distance: edge.data?.distance || 0.5,
