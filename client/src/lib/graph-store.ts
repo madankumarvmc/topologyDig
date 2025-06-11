@@ -41,6 +41,7 @@ interface GraphActions {
   onDrop: (event: React.DragEvent) => void;
   onDragOver: (event: React.DragEvent) => void;
   onEdgeClick: (event: React.MouseEvent, edge: Edge) => void;
+  onEdgeDoubleClick: (event: React.MouseEvent, edge: Edge) => void;
   onPaneClick: () => void;
   setMode: (mode: 'select' | 'connect') => void;
   deleteSelectedElements: () => void;
@@ -179,6 +180,17 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
     });
   },
 
+  onNodeDoubleClick: (event, node) => {
+    event.stopPropagation();
+    // Double-click opens property modal
+    set({
+      selectedNode: node,
+      selectedEdge: null,
+    });
+    // Trigger property modal opening via custom event
+    window.dispatchEvent(new CustomEvent('openPropertyModal'));
+  },
+
   onDragOver: (event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -219,6 +231,15 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       selectedEdge: edge,
       selectedNode: null,
     });
+  },
+
+  onEdgeDoubleClick: (event: React.MouseEvent, edge: Edge) => {
+    event.stopPropagation();
+    set({
+      selectedEdge: edge,
+      selectedNode: null,
+    });
+    window.dispatchEvent(new CustomEvent('openPropertyModal'));
   },
 
   onPaneClick: () => {

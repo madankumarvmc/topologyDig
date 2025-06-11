@@ -24,7 +24,9 @@ export default function GraphEditor() {
     onEdgesChange,
     onConnect,
     onNodeClick,
+    onNodeDoubleClick,
     onEdgeClick,
+    onEdgeDoubleClick,
     onPaneClick,
     onDrop,
     onDragOver,
@@ -172,6 +174,7 @@ export default function GraphEditor() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onNodeDoubleClick={onNodeDoubleClick}
             onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
             onDrop={onDrop}

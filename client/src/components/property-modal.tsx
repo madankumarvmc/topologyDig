@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useGraphStore } from "@/lib/graph-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,11 +32,16 @@ export default function PropertyModal() {
     setIsOpen(false);
   }, []);
 
-  // Open modal when node/edge is double-clicked
-  const handleOpen = useCallback(() => {
-    if (selectedNode || selectedEdge) {
-      setIsOpen(true);
-    }
+  // Listen for property modal open events
+  useEffect(() => {
+    const handleOpenModal = () => {
+      if (selectedNode || selectedEdge) {
+        setIsOpen(true);
+      }
+    };
+
+    window.addEventListener('openPropertyModal', handleOpenModal);
+    return () => window.removeEventListener('openPropertyModal', handleOpenModal);
   }, [selectedNode, selectedEdge]);
 
   const handleUpdateNode = useCallback((field: string, value: any) => {
