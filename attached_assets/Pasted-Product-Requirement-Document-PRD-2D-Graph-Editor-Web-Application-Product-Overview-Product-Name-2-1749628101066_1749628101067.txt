@@ -1,0 +1,151 @@
+Product Requirement Document (PRD): 2D Graph Editor Web Application
+Product Overview
+Product Name: 2D Graph Editor
+Purpose:
+A React-based web application that enables users to visually create, edit, and manage 2D graphs representing warehouse topologies. The tool allows users to draw nodes and edges, assign properties, and export the graph as a structured JSON file matching the provided schema.
+Primary Users:
+
+Warehouse system designers
+
+Process engineers
+
+Automation solution architects
+
+1. Goals & Objectives
+Allow users to visually construct and modify a directed 2D graph (nodes and edges) in the browser.
+
+Enable users to specify node types, commands, and attributes as per the warehouse topology schema.
+
+Generate and export a JSON representation of the graph, conforming to the specified schema.
+
+Provide an intuitive, interactive, and responsive user experience.
+
+2. Functional Requirements
+2.1 Graph Editor
+Node Creation:
+Users can add nodes to the canvas. Each node must have:
+
+A unique code (string/number)
+
+A type (e.g., SIMPLE, SCANNER, EJECT, etc.)
+
+A command (cmd, integer)
+
+Optional attributes (attrs, key-value pairs)
+
+Edge Creation:
+Users can connect nodes with directed edges (arrows), representing the flow or connection between two points.
+
+Node Editing:
+Users can select a node to edit its properties (code, type, cmd, attrs).
+
+Node types and attributes must match the types and examples in the provided JSON (e.g., SCANNER with "junction": true, EJECT with "blockedHU": true, etc.).
+
+Edge Editing:
+Users can select an edge to edit its label (optional, e.g., distance, time, or other metadata as shown in the .ini file).
+
+Node Deletion:
+Users can remove nodes, with all connected edges automatically removed.
+
+Edge Deletion:
+Users can remove edges individually.
+
+Canvas Navigation:
+Users can pan and zoom the canvas for large graphs.
+
+Undo/Redo:
+Users can undo or redo recent actions.
+
+2.2 Data Handling
+Export to JSON:
+Users can export the current graph as a JSON file matching the provided schema.
+
+Import from JSON (optional):
+Users can upload a JSON file to reconstruct a previously saved graph.
+
+2.3 UI/UX
+Node Appearance:
+Node shapes and colors should reflect their types, as in the .ini file (e.g., circles for SIMPLE, diamonds for SCANNER, boxes for EJECT, etc.).
+
+Edge Appearance:
+Edges are arrows; optionally, edge color/thickness can encode metadata (e.g., "color=blue penwidth=3.0" in .ini).
+
+Property Panel:
+When a node or edge is selected, a panel displays editable properties.
+
+Validation:
+The app must prevent duplicate node codes and ensure all required fields are filled before export.
+
+3. Non-Functional Requirements
+Performance:
+Must support graphs with at least 100 nodes and 200 edges without lag.
+
+Responsiveness:
+Works on desktop and tablet browsers.
+
+Accessibility:
+Follows basic accessibility best practices (keyboard navigation, ARIA labels).
+
+Security:
+No sensitive data is handled; all processing is client-side.
+
+4. Data Model
+Node Example (from JSON):
+json
+{
+  "code": "330",
+  "type": "SIMPLE",
+  "cmd": 330,
+  "attrs": {}
+}
+code: unique identifier (string/number)
+
+type: SIMPLE, SCANNER, EJECT, etc.
+
+cmd: integer command code
+
+attrs: key-value pairs (e.g., "ptlFeed": "true", "junction": "true", "blockedHU": "true")
+
+Edge Example (from .ini):
+Edges are directed, may have labels (e.g., "label=7", "color=blue", "penwidth=3.0").
+
+5. User Stories
+As a user, I want to add nodes of different types to the canvas so that I can represent various warehouse elements.
+
+As a user, I want to connect nodes with directed edges to define the flow or relationships.
+
+As a user, I want to edit node and edge properties to match my warehouse topology.
+
+As a user, I want to export the graph to JSON for use in other tools or systems.
+
+As a user, I want the visual appearance of nodes and edges to reflect their types and properties.
+
+6. Out of Scope
+Real-time collaboration (multi-user editing)
+
+Backend storage or authentication
+
+Export to formats other than JSON
+
+7. Technical Constraints
+Must be built using React.
+
+Should leverage a graph visualization library (e.g., React Flow, Cytoscape.js, or similar).
+
+All processing and data storage are client-side.
+
+8. Success Metrics
+Users can create, edit, and export a graph matching the provided JSON schema.
+
+Visual appearance of the graph matches conventions in the .ini file.
+
+No critical bugs or data loss in typical usage scenarios.
+
+9. Appendix
+Reference Files:
+
+.ini file for visual and structural conventions
+
+JSON schema for export format
+
+End of PRD
