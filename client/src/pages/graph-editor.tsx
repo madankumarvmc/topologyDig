@@ -46,6 +46,33 @@ export default function GraphEditor() {
   } = useGraphStore();
 
   const { toast } = useToast();
+  const { updateNode } = useGraphStore();
+
+  // Handle text box updates
+  useEffect(() => {
+    const handleUpdateTextNode = (event: CustomEvent) => {
+      const { id, text } = event.detail;
+      updateNode(id, { data: { ...nodes.find(n => n.id === id)?.data, text } });
+    };
+
+    const handleUpdateTextNodeStyle = (event: CustomEvent) => {
+      const { id, property, value } = event.detail;
+      const node = nodes.find(n => n.id === id);
+      if (node) {
+        updateNode(id, { 
+          data: { ...node.data, [property]: value } 
+        });
+      }
+    };
+
+    window.addEventListener('updateTextNode', handleUpdateTextNode as EventListener);
+    window.addEventListener('updateTextNodeStyle', handleUpdateTextNodeStyle as EventListener);
+
+    return () => {
+      window.removeEventListener('updateTextNode', handleUpdateTextNode as EventListener);
+      window.removeEventListener('updateTextNodeStyle', handleUpdateTextNodeStyle as EventListener);
+    };
+  }, [updateNode, nodes]);
 
   const handleExport = useCallback(() => {
     try {

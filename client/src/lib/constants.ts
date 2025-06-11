@@ -1,6 +1,7 @@
 import { Node, Edge } from 'reactflow';
 import CustomNode from '@/components/custom-node';
 import CustomEdge from '@/components/custom-edge';
+import TextBoxNode from '@/components/text-box-node';
 
 export type NodeType = 'simple' | 'scanner' | 'eject' | 'feed' | 'ptlzone' | 'sblzone';
 
@@ -11,8 +12,22 @@ export interface NodeData {
   attrs: Record<string, string>;
 }
 
+export interface TextBoxData {
+  text: string;
+  fontSize: number;
+  fontWeight: string;
+  fontStyle: string;
+  textDecoration: string;
+  textAlign: string;
+  color: string;
+  backgroundColor: string;
+  width: number;
+  height: number;
+}
+
 export const NODE_TYPES = {
   custom: CustomNode,
+  textbox: TextBoxNode,
 };
 
 export const EDGE_TYPES = {
