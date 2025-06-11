@@ -170,6 +170,12 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
         ...connection,
         type: 'custom',
         markerEnd: { type: MarkerType.ArrowClosed },
+        data: {
+          distance: 0.5,
+          attrs: {},
+          default: false,
+          capacity: 1,
+        },
       }, state.edges),
     }));
     get().saveToHistory();

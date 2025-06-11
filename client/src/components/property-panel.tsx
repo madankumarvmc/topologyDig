@@ -304,11 +304,13 @@ export default function PropertyPanel() {
   }
 
   if (selectedEdge) {
+    console.log('Selected Edge Data:', selectedEdge);
     return (
       <div className="w-80 bg-white border-l border-gray-200 flex flex-col">
         <div className="p-4 border-b border-gray-100">
           <h2 className="font-medium text-gray-800">Edge Properties</h2>
           <p className="text-sm text-gray-600 mt-1">Configure selected edge</p>
+          <p className="text-xs text-gray-500 mt-1">ID: {selectedEdge.id}</p>
         </div>
         
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -317,6 +319,13 @@ export default function PropertyPanel() {
               <CardTitle className="text-sm">Edge Properties</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/* Debug Info */}
+              <div className="bg-gray-50 p-2 rounded text-xs">
+                <strong>Debug Info:</strong><br/>
+                Data: {JSON.stringify(selectedEdge.data || {}, null, 2)}<br/>
+                Style: {JSON.stringify(selectedEdge.style || {}, null, 2)}
+              </div>
+              
               <div>
                 <Label htmlFor="from" className="text-xs font-medium text-gray-700">From Node</Label>
                 <Input
@@ -347,10 +356,10 @@ export default function PropertyPanel() {
                   id="distance"
                   type="number"
                   step="0.1"
-                  value={selectedEdge.data?.distance || ""}
+                  value={selectedEdge.data?.distance || 0.5}
                   onChange={(e) => handleUpdateEdge('data', { 
                     ...selectedEdge.data, 
-                    distance: parseFloat(e.target.value) || 0 
+                    distance: parseFloat(e.target.value) || 0.5 
                   })}
                   placeholder="Distance value"
                   className="mt-1"
