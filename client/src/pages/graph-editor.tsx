@@ -10,7 +10,8 @@ import ExportModal from "@/components/export-modal";
 import LayoutToolbar from "@/components/layout-toolbar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Undo2, Redo2, Download, Upload, Edit } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Undo2, Redo2, Download, Upload, Edit, Keyboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
 
@@ -230,6 +231,27 @@ export default function GraphEditor() {
             <Download className="h-4 w-4 mr-2" />
             Export JSON
           </Button>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <div className="text-sm space-y-1">
+                <div><strong>Ctrl+C</strong> - Copy selected elements</div>
+                <div><strong>Ctrl+V</strong> - Paste elements</div>
+                <div><strong>Delete</strong> - Delete selected elements</div>
+                <div><strong>Ctrl+Z</strong> - Undo</div>
+                <div><strong>Ctrl+Shift+Z</strong> - Redo</div>
+                <div><strong>Shift+Click</strong> - Multi-select</div>
+                <div><strong>Double-click</strong> - Edit properties</div>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </header>
 
@@ -257,6 +279,10 @@ export default function GraphEditor() {
             fitView
             attributionPosition="bottom-left"
             className="bg-gray-50"
+            multiSelectionKeyCode="Shift"
+            selectionKeyCode="Shift"
+            deleteKeyCode="Delete"
+            selectNodesOnDrag={false}
           >
             <Background color="#e0e0e0" gap={20} size={1} />
             <Controls />

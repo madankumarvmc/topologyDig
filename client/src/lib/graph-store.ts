@@ -258,12 +258,40 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
   },
 
   deleteSelectedElements: () => {
+    const { nodes, edges } = get();
+    
+    // Get all selected nodes and edges
+    const selectedNodes = nodes.filter(node => node.selected);
+    const selectedEdges = edges.filter(edge => edge.selected);
+    
+    // If no explicit selection, fall back to selectedNode/selectedEdge
     const { selectedNode, selectedEdge } = get();
-    if (selectedNode) {
-      get().deleteNode(selectedNode.id);
-    } else if (selectedEdge) {
-      get().deleteEdge(selectedEdge.id);
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+      if (selectedNode) selectedNodes.push(selectedNode);
+      if (selectedEdge) selectedEdges.push(selectedEdge);
     }
+    
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
+    
+    const selectedNodeIds = new Set(selectedNodes.map(node => node.id));
+    const selectedEdgeIds = new Set(selectedEdges.map(edge => edge.id));
+    
+    // Remove selected nodes and all edges connected to them
+    const newNodes = nodes.filter(node => !selectedNodeIds.has(node.id));
+    const newEdges = edges.filter(edge => 
+      !selectedEdgeIds.has(edge.id) && 
+      !selectedNodeIds.has(edge.source) && 
+      !selectedNodeIds.has(edge.target)
+    );
+    
+    set({
+      nodes: newNodes,
+      edges: newEdges,
+      selectedNode: null,
+      selectedEdge: null,
+    });
+    
+    get().saveToHistory();
   },
 
   saveToHistory: () => {
@@ -343,22 +371,37 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
   },
 
   copySelectedElements: () => {
-    const { selectedNode, selectedEdge, nodes, edges } = get();
-    const selectedNodes = selectedNode ? [selectedNode] : [];
-    const selectedEdges = selectedEdge ? [selectedEdge] : [];
+    const { nodes, edges } = get();
     
-    // If copying a node, also copy connected edges
-    if (selectedNode) {
-      const connectedEdges = edges.filter(edge => 
-        edge.source === selectedNode.id || edge.target === selectedNode.id
-      );
-      selectedEdges.push(...connectedEdges);
+    // Get all selected nodes and edges
+    const selectedNodes = nodes.filter(node => node.selected);
+    const selectedEdges = edges.filter(edge => edge.selected);
+    
+    // If no explicit selection, fall back to selectedNode/selectedEdge
+    const { selectedNode, selectedEdge } = get();
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+      if (selectedNode) selectedNodes.push(selectedNode);
+      if (selectedEdge) selectedEdges.push(selectedEdge);
     }
+    
+    // Also include edges that connect selected nodes
+    const selectedNodeIds = new Set(selectedNodes.map(node => node.id));
+    const connectedEdges = edges.filter(edge => 
+      selectedNodeIds.has(edge.source) && selectedNodeIds.has(edge.target)
+    );
+    
+    // Combine selected edges with connected edges (avoid duplicates)
+    const allEdges = [...selectedEdges];
+    connectedEdges.forEach(edge => {
+      if (!allEdges.find(e => e.id === edge.id)) {
+        allEdges.push(edge);
+      }
+    });
     
     set({ 
       clipboard: { 
         nodes: selectedNodes, 
-        edges: selectedEdges 
+        edges: allEdges 
       } 
     });
   },
