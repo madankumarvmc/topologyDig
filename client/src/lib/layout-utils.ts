@@ -86,9 +86,15 @@ export function getHorizontalLayout(
   edges: Edge[]
 ) {
   const nodeCount = nodes.length;
-  // Adjust node size based on graph size for better screen fit
-  const nodeWidth = nodeCount > 100 ? 100 : 150;
-  const nodeHeight = nodeCount > 100 ? 60 : 100;
+  
+  if (nodeCount > 80) {
+    // Use specialized warehouse flow layout for large topologies
+    return getWarehouseFlowLayout(nodes, edges);
+  }
+  
+  // Use regular dagre layout for smaller graphs
+  const nodeWidth = nodeCount > 50 ? 100 : 150;
+  const nodeHeight = nodeCount > 50 ? 60 : 100;
   
   return getLayoutedElements(nodes, edges, 'LR', nodeWidth, nodeHeight);
 }
@@ -139,4 +145,109 @@ export function getGridLayout(
   });
 
   return { nodes: layoutedNodes, edges };
+}
+
+export function getWarehouseFlowLayout(
+  nodes: Node<NodeData>[],
+  edges: Edge[]
+) {
+  // Build adjacency maps
+  const outgoing = new Map<string, string[]>();
+  const incoming = new Map<string, string[]>();
+  
+  edges.forEach(edge => {
+    if (!outgoing.has(edge.source)) outgoing.set(edge.source, []);
+    if (!incoming.has(edge.target)) incoming.set(edge.target, []);
+    
+    outgoing.get(edge.source)!.push(edge.target);
+    incoming.get(edge.target)!.push(edge.source);
+  });
+
+  // Find entry points (nodes with no incoming edges or feeders)
+  const entryPoints = nodes.filter(node => {
+    const hasIncoming = incoming.has(node.id) && incoming.get(node.id)!.length > 0;
+    const isFeeder = node.data.code.match(/^(61|63|65|V)/) || 
+                     node.data.attrs?.ptlFeed === 'true' ||
+                     node.data.attrs?.ptlFeedControl === 'true';
+    return !hasIncoming || isFeeder;
+  });
+
+  // Create flow chains starting from entry points
+  const visited = new Set<string>();
+  const chains: Node<NodeData>[][] = [];
+  
+  function traceChain(startNode: Node<NodeData>): Node<NodeData>[] {
+    const chain: Node<NodeData>[] = [startNode];
+    visited.add(startNode.id);
+    
+    let current = startNode;
+    while (true) {
+      const nextNodes = outgoing.get(current.id) || [];
+      // Follow the main path (default edge or first available)
+      const nextNodeId = nextNodes.find(id => !visited.has(id));
+      
+      if (!nextNodeId) break;
+      
+      const nextNode = nodes.find(n => n.id === nextNodeId);
+      if (!nextNode) break;
+      
+      chain.push(nextNode);
+      visited.add(nextNode.id);
+      current = nextNode;
+    }
+    
+    return chain;
+  }
+
+  // Trace main chains
+  entryPoints.forEach(entry => {
+    if (!visited.has(entry.id)) {
+      chains.push(traceChain(entry));
+    }
+  });
+
+  // Handle remaining unvisited nodes
+  nodes.forEach(node => {
+    if (!visited.has(node.id)) {
+      chains.push(traceChain(node));
+    }
+  });
+
+  // Layout chains vertically with compact spacing
+  const layoutedNodes: Node<NodeData>[] = [];
+  const nodeSpacing = 80;
+  const chainSpacing = 120;
+  let currentY = 50;
+
+  chains.sort((a, b) => b.length - a.length); // Longer chains first
+
+  chains.forEach(chain => {
+    let currentX = 50;
+    
+    chain.forEach(node => {
+      layoutedNodes.push({
+        ...node,
+        position: { x: currentX, y: currentY }
+      });
+      currentX += nodeSpacing;
+    });
+    
+    currentY += chainSpacing;
+  });
+
+  // Improve edge routing for better visual flow
+  const layoutedEdges = edges.map(edge => ({
+    ...edge,
+    type: 'smoothstep',
+    style: {
+      ...edge.style,
+      strokeWidth: edge.style?.strokeWidth || 2,
+    },
+    pathOptions: {
+      offset: 10,
+      borderRadius: 8,
+    },
+  }));
+
+  return { nodes: layoutedNodes, edges: layoutedEdges };
 }
