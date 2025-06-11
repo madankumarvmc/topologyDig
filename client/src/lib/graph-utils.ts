@@ -1,4 +1,4 @@
-import { Node, Edge } from 'reactflow';
+import { Node, Edge, MarkerType } from 'reactflow';
 import { NodeData, NodeType } from './constants';
 
 export function createNewNode(type: NodeType): Node<NodeData> {
@@ -87,7 +87,7 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
           target: targetId,
           type: 'custom',
           label: edgeData.label || "",
-          markerEnd: { type: 'arrowclosed' },
+          markerEnd: { type: MarkerType.ArrowClosed },
           style: {
             stroke: edgeData.color === "blue" ? "#3b82f6" :
                     edgeData.color === "red" ? "#ef4444" :

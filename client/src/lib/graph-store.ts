@@ -7,7 +7,8 @@ import {
   applyNodeChanges, 
   applyEdgeChanges,
   NodeChange,
-  EdgeChange
+  EdgeChange,
+  MarkerType
 } from 'reactflow';
 import { NodeData } from './constants';
 
@@ -43,6 +44,7 @@ interface GraphActions {
   undo: () => void;
   redo: () => void;
   saveToHistory: () => void;
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'force' | 'grid') => void;
 }
 
 export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
@@ -159,7 +161,7 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       edges: addEdge({
         ...connection,
         type: 'custom',
-        markerEnd: { type: 'arrowclosed' },
+        markerEnd: { type: 'arrowclosed' as const },
       }, state.edges),
     }));
     get().saveToHistory();
@@ -247,5 +249,39 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
         selectedEdge: null,
       });
     }
+  },
+
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'force' | 'grid') => {
+    const { nodes, edges } = get();
+    
+    // Import layout utilities dynamically to avoid circular dependencies
+    import('../lib/layout-utils').then(({ getHierarchicalLayout, getHorizontalLayout, getForceLayout, getGridLayout }) => {
+      let layoutedElements;
+      
+      switch (layoutType) {
+        case 'hierarchical':
+          layoutedElements = getHierarchicalLayout(nodes, edges);
+          break;
+        case 'horizontal':
+          layoutedElements = getHorizontalLayout(nodes, edges);
+          break;
+        case 'force':
+          layoutedElements = getForceLayout(nodes, edges);
+          break;
+        case 'grid':
+          layoutedElements = getGridLayout(nodes, edges);
+          break;
+        default:
+          layoutedElements = getHierarchicalLayout(nodes, edges);
+      }
+      
+      set({ 
+        nodes: layoutedElements.nodes,
+        edges: layoutedElements.edges,
+        selectedNode: null,
+        selectedEdge: null,
+      });
+      get().saveToHistory();
+    });
   },
 }));
