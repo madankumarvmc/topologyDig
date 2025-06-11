@@ -41,7 +41,7 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
   const { alignmentLines, draggedNode, processNodeChanges } = useAlignmentGuides(nodes);
 
   // Enhanced node change handler with alignment
-  const handleNodesChange = useCallback((changes) => {
+  const handleNodesChange = useCallback((changes: any) => {
     const processedChanges = processNodeChanges(changes);
     onNodesChange(processedChanges);
   }, [processNodeChanges, onNodesChange]);
@@ -200,7 +200,7 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
           color="hsl(0, 0%, 88%)" 
           gap={20} 
           size={1}
-          variant="dots"
+          variant="lines"
         />
         
         {/* Canvas controls */}
@@ -226,6 +226,13 @@ const GraphCanvasContent = ({ className = "" }: GraphCanvasProps) => {
           position="bottom-right"
         />
       </ReactFlow>
+
+      {/* Alignment guides overlay */}
+      <AlignmentGuides 
+        nodes={nodes}
+        draggedNode={draggedNode}
+        alignmentLines={alignmentLines}
+      />
 
       {/* Mode indicator */}
       {mode === 'connect' && (
