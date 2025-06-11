@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ReactFlow edge visibility fixes */
+.react-flow__edge {
+  z-index: 10 !important;
+  pointer-events: stroke;
+}
+
+.react-flow__edge.selected {
+  z-index: 11 !important;
+}
+
+.react-flow__node {
+  z-index: 5;
+}
+
+.react-flow__node.selected {
+  z-index: 6;
+}
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(240, 10%, 3.9%);

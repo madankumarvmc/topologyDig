@@ -39,7 +39,7 @@ interface GraphActions {
   onConnect: (connection: Connection) => void;
   onNodeClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
   onNodeDoubleClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
-  onDrop: (event: React.DragEvent) => void;
+  onDrop: (event: React.DragEvent, reactFlowInstance?: any) => void;
   onDragOver: (event: React.DragEvent) => void;
   onEdgeClick: (event: React.MouseEvent, edge: Edge) => void;
   onEdgeDoubleClick: (event: React.MouseEvent, edge: Edge) => void;
@@ -200,20 +200,35 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
     event.dataTransfer.dropEffect = 'move';
   },
 
-  onDrop: (event) => {
+  onDrop: (event, reactFlowInstance) => {
     event.preventDefault();
     
-    const reactFlowBounds = event.currentTarget.getBoundingClientRect();
     const type = event.dataTransfer.getData('application/reactflow');
     
     if (typeof type === 'undefined' || !type) {
       return;
     }
 
-    const position = {
-      x: event.clientX - reactFlowBounds.left,
-      y: event.clientY - reactFlowBounds.top,
-    };
+    let position;
+    
+    if (reactFlowInstance && reactFlowInstance.screenToFlowPosition) {
+      // Use ReactFlow's proper coordinate transformation
+      position = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+      
+      // Offset to center the node on cursor
+      position.x -= 75;
+      position.y -= 25;
+    } else {
+      // Fallback to manual calculation
+      const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+      position = {
+        x: event.clientX - reactFlowBounds.left - 75,
+        y: event.clientY - reactFlowBounds.top - 25,
+      };
+    }
 
     // Import createNewNode dynamically to avoid circular dependencies
     import('../lib/graph-utils').then(({ createNewNode }) => {
@@ -222,7 +237,7 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       
       set((state) => ({
         nodes: [...state.nodes, newNode],
-        selectedNode: null,
+        selectedNode: newNode,
         selectedEdge: null,
       }));
       get().saveToHistory();

@@ -1,5 +1,5 @@
-import { useCallback, useEffect } from "react";
-import { ReactFlow, Background, Controls, MiniMap } from "reactflow";
+import { useCallback, useEffect, useRef } from "react";
+import { ReactFlow, Background, Controls, MiniMap, useReactFlow } from "reactflow";
 import "reactflow/dist/style.css";
 
 import { useGraphStore } from "@/lib/graph-store";
@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
 
 export default function GraphEditor() {
+  const reactFlowWrapper = useRef(null);
   const {
     nodes,
     edges,
