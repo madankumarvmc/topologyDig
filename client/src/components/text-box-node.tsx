@@ -46,19 +46,33 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
   };
 
   const autoResizeToFitText = (text: string) => {
-    // Calculate approximate width and height based on text length
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (context) {
-      context.font = `${data.fontSize || 14}px Arial`;
-      const lines = text.split('\n');
-      const maxLineWidth = Math.max(...lines.map(line => context.measureText(line).width));
-      const minWidth = Math.max(100, maxLineWidth + 40); // Add padding
-      const minHeight = Math.max(40, lines.length * (data.fontSize || 14) * 1.5 + 20); // Line height + padding
-      
-      updateProperty('width', minWidth);
-      updateProperty('height', minHeight);
-    }
+    if (!text || text.length === 0) return;
+    
+    // Create a temporary element to measure text
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.visibility = 'hidden';
+    tempDiv.style.whiteSpace = 'pre-wrap';
+    tempDiv.style.fontSize = `${data.fontSize || 14}px`;
+    tempDiv.style.fontFamily = 'Arial, sans-serif';
+    tempDiv.style.fontWeight = data.fontWeight || 'normal';
+    tempDiv.style.fontStyle = data.fontStyle || 'normal';
+    tempDiv.style.padding = '8px';
+    tempDiv.style.border = '2px solid transparent';
+    tempDiv.textContent = text;
+    
+    document.body.appendChild(tempDiv);
+    
+    const measuredWidth = tempDiv.offsetWidth;
+    const measuredHeight = tempDiv.offsetHeight;
+    
+    document.body.removeChild(tempDiv);
+    
+    const newWidth = Math.max(100, measuredWidth + 10);
+    const newHeight = Math.max(40, measuredHeight + 10);
+    
+    updateProperty('width', newWidth);
+    updateProperty('height', newHeight);
   };
 
   const handleTextSubmit = () => {
@@ -145,21 +159,21 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
           <>
             {/* Top-left corner */}
             <div
-              className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-nw-resize rounded-sm"
+              className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-nw-resize rounded-sm z-10"
               onMouseDown={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
-                const startPosX = e.currentTarget.parentElement?.getBoundingClientRect().left || 0;
-                const startPosY = e.currentTarget.parentElement?.getBoundingClientRect().top || 0;
                 
                 const handleMouseMove = (e: MouseEvent) => {
+                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(50, startWidth - deltaX);
-                  const newHeight = Math.max(20, startHeight - deltaY);
+                  const newWidth = Math.max(80, startWidth - deltaX);
+                  const newHeight = Math.max(30, startHeight - deltaY);
                   updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
@@ -167,8 +181,12 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const handleMouseUp = () => {
                   document.removeEventListener('mousemove', handleMouseMove);
                   document.removeEventListener('mouseup', handleMouseUp);
+                  document.body.style.userSelect = '';
+                  document.body.style.cursor = '';
                 };
                 
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'nw-resize';
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
               }}
@@ -176,19 +194,21 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Top-right corner */}
             <div
-              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-ne-resize rounded-sm"
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-ne-resize rounded-sm z-10"
               onMouseDown={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
+                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(50, startWidth + deltaX);
-                  const newHeight = Math.max(20, startHeight - deltaY);
+                  const newWidth = Math.max(80, startWidth + deltaX);
+                  const newHeight = Math.max(30, startHeight - deltaY);
                   updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
@@ -196,8 +216,12 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const handleMouseUp = () => {
                   document.removeEventListener('mousemove', handleMouseMove);
                   document.removeEventListener('mouseup', handleMouseUp);
+                  document.body.style.userSelect = '';
+                  document.body.style.cursor = '';
                 };
                 
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'ne-resize';
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
               }}
@@ -205,19 +229,21 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Bottom-left corner */}
             <div
-              className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-sw-resize rounded-sm"
+              className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-sw-resize rounded-sm z-10"
               onMouseDown={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
+                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(50, startWidth - deltaX);
-                  const newHeight = Math.max(20, startHeight + deltaY);
+                  const newWidth = Math.max(80, startWidth - deltaX);
+                  const newHeight = Math.max(30, startHeight + deltaY);
                   updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
@@ -225,8 +251,12 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const handleMouseUp = () => {
                   document.removeEventListener('mousemove', handleMouseMove);
                   document.removeEventListener('mouseup', handleMouseUp);
+                  document.body.style.userSelect = '';
+                  document.body.style.cursor = '';
                 };
                 
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'sw-resize';
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
               }}
@@ -234,19 +264,21 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Bottom-right corner */}
             <div
-              className="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-se-resize rounded-sm"
+              className="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-se-resize rounded-sm z-10"
               onMouseDown={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 const startX = e.clientX;
                 const startY = e.clientY;
                 const startWidth = data.width || 150;
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
+                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(50, startWidth + deltaX);
-                  const newHeight = Math.max(20, startHeight + deltaY);
+                  const newWidth = Math.max(80, startWidth + deltaX);
+                  const newHeight = Math.max(30, startHeight + deltaY);
                   updateProperty('width', newWidth);
                   updateProperty('height', newHeight);
                 };
@@ -254,8 +286,12 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const handleMouseUp = () => {
                   document.removeEventListener('mousemove', handleMouseMove);
                   document.removeEventListener('mouseup', handleMouseUp);
+                  document.body.style.userSelect = '';
+                  document.body.style.cursor = '';
                 };
                 
+                document.body.style.userSelect = 'none';
+                document.body.style.cursor = 'se-resize';
                 document.addEventListener('mousemove', handleMouseMove);
                 document.addEventListener('mouseup', handleMouseUp);
               }}
