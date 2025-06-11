@@ -22,6 +22,7 @@ interface GraphState {
   historyIndex: number;
   canUndo: boolean;
   canRedo: boolean;
+  clipboard: { nodes: Node<NodeData>[]; edges: Edge[] } | null;
 }
 
 interface GraphActions {
@@ -49,6 +50,8 @@ interface GraphActions {
   redo: () => void;
   saveToHistory: () => void;
   autoLayout: (layoutType: 'hierarchical' | 'horizontal') => void;
+  copySelectedElements: () => void;
+  pasteElements: () => void;
 }
 
 export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
@@ -61,6 +64,7 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
   historyIndex: -1,
   canUndo: false,
   canRedo: false,
+  clipboard: null,
 
   setNodes: (nodes) => {
     set({ nodes });
@@ -336,5 +340,79 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       });
       get().saveToHistory();
     });
+  },
+
+  copySelectedElements: () => {
+    const { selectedNode, selectedEdge, nodes, edges } = get();
+    const selectedNodes = selectedNode ? [selectedNode] : [];
+    const selectedEdges = selectedEdge ? [selectedEdge] : [];
+    
+    // If copying a node, also copy connected edges
+    if (selectedNode) {
+      const connectedEdges = edges.filter(edge => 
+        edge.source === selectedNode.id || edge.target === selectedNode.id
+      );
+      selectedEdges.push(...connectedEdges);
+    }
+    
+    set({ 
+      clipboard: { 
+        nodes: selectedNodes, 
+        edges: selectedEdges 
+      } 
+    });
+  },
+
+  pasteElements: () => {
+    const { clipboard, nodes, edges } = get();
+    if (!clipboard || (clipboard.nodes.length === 0 && clipboard.edges.length === 0)) return;
+    
+    const nodeIdMap = new Map<string, string>();
+    const newNodes: Node<NodeData>[] = [];
+    const newEdges: Edge[] = [];
+    
+    // Create new nodes with unique IDs and offset positions
+    clipboard.nodes.forEach(node => {
+      const newNodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      nodeIdMap.set(node.id, newNodeId);
+      
+      const newNode: Node<NodeData> = {
+        ...node,
+        id: newNodeId,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50
+        },
+        selected: false
+      };
+      newNodes.push(newNode);
+    });
+    
+    // Create new edges with updated node references
+    clipboard.edges.forEach(edge => {
+      const sourceId = nodeIdMap.get(edge.source) || edge.source;
+      const targetId = nodeIdMap.get(edge.target) || edge.target;
+      
+      // Only create edge if both source and target nodes exist
+      if (nodes.find(n => n.id === sourceId) || newNodes.find(n => n.id === sourceId)) {
+        if (nodes.find(n => n.id === targetId) || newNodes.find(n => n.id === targetId)) {
+          const newEdge: Edge = {
+            ...edge,
+            id: `edge_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            source: sourceId,
+            target: targetId
+          };
+          newEdges.push(newEdge);
+        }
+      }
+    });
+    
+    set({ 
+      nodes: [...nodes, ...newNodes],
+      edges: [...edges, ...newEdges],
+      selectedNode: newNodes[0] || null,
+      selectedEdge: newEdges[0] || null
+    });
+    get().saveToHistory();
   },
 }));

@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { ReactFlow, Background, Controls, MiniMap } from "reactflow";
 import "reactflow/dist/style.css";
 
@@ -36,6 +36,9 @@ export default function GraphEditor() {
     canRedo,
     setNodes,
     setEdges,
+    deleteSelectedElements,
+    copySelectedElements,
+    pasteElements,
   } = useGraphStore();
 
   const { toast } = useToast();
@@ -116,6 +119,63 @@ export default function GraphEditor() {
       description: "Action has been redone.",
     });
   }, [redo, toast]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Prevent shortcuts when typing in input fields
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      const isCtrl = event.ctrlKey || event.metaKey;
+      const isShift = event.shiftKey;
+
+      if (isCtrl && !isShift && event.key === 'c') {
+        event.preventDefault();
+        copySelectedElements();
+        toast({
+          title: "Copied",
+          description: "Selected elements copied to clipboard.",
+        });
+      } else if (isCtrl && !isShift && event.key === 'v') {
+        event.preventDefault();
+        pasteElements();
+        toast({
+          title: "Pasted",
+          description: "Elements pasted from clipboard.",
+        });
+      } else if (event.key === 'Delete' || event.key === 'Backspace') {
+        event.preventDefault();
+        deleteSelectedElements();
+        toast({
+          title: "Deleted",
+          description: "Selected elements deleted.",
+        });
+      } else if (isCtrl && isShift && event.key === 'Z') {
+        event.preventDefault();
+        if (canRedo) {
+          redo();
+          toast({
+            title: "Redo",
+            description: "Action has been redone.",
+          });
+        }
+      } else if (isCtrl && !isShift && event.key === 'z') {
+        event.preventDefault();
+        if (canUndo) {
+          undo();
+          toast({
+            title: "Undo",
+            description: "Last action has been undone.",
+          });
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [copySelectedElements, pasteElements, deleteSelectedElements, undo, redo, canUndo, canRedo, toast]);
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
