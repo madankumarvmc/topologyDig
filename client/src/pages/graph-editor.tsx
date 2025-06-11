@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Undo2, Redo2, Download, Upload, Edit, Keyboard } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
+import { parseDotGraph } from "@/lib/dot-parser";
 
 export default function GraphEditor() {
   const reactFlowWrapper = useRef(null);
