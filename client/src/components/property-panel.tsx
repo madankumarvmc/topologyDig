@@ -223,39 +223,57 @@ export default function PropertyPanel() {
               {/* Quick Attributes */}
               <div>
                 <Label className="text-xs font-medium text-gray-700 mb-2 block">Quick Attributes</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleQuickAttribute("junction:true")}
-                  >
-                    Junction
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleQuickAttribute("ptlFeed:true")}
-                  >
-                    PTL Feed
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleQuickAttribute("blockedHU:true")}
-                  >
-                    Blocked HU
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => handleQuickAttribute("emptyHU:true")}
-                  >
-                    Empty HU
-                  </Button>
+                <div className="grid grid-cols-2 gap-1">
+                  {[
+                    "junction:true",
+                    "ptlFeed:true", 
+                    "blockedHU:true",
+                    "emptyHU:true",
+                    "sblFeed:true",
+                    "qc:true",
+                    "misc:true",
+                    "noEligibleZone:true",
+                    "packedCHU:true",
+                    "emptyPackedCHU:true",
+                    "ptlFeedControl:true",
+                    "enabled:true"
+                  ].map((attr) => (
+                    <Button
+                      key={attr}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs py-1 px-2"
+                      onClick={() => handleQuickAttribute(attr)}
+                    >
+                      {attr.split(':')[0]}
+                    </Button>
+                  ))}
+                </div>
+                <div className="mt-2 space-y-1">
+                  {[
+                    "xdockMapping:",
+                    "routeId:",
+                    "zone:",
+                    "priority:",
+                    "capacity:",
+                    "conveyor:",
+                    "deviceId:",
+                    "networkId:"
+                  ].map((attr) => (
+                    <Button
+                      key={attr}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs w-full"
+                      onClick={() => {
+                        const key = attr.replace(':', '');
+                        setNewAttrKey(key);
+                        setNewAttrValue('');
+                      }}
+                    >
+                      Add {attr.replace(':', '')}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </CardContent>

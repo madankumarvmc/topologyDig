@@ -9,24 +9,25 @@ const CustomNode = memo(({ data, selected }: NodeProps<NodeData>) => {
     
     switch (data.type) {
       case 'simple':
-        // Circle - Gray filled
-        return `${baseStyle} rounded-full bg-gray-200 border-2 border-gray-500 ${selectedStyle}`;
+        // Circle - Grey
+        return `${baseStyle} rounded-full bg-gray-300 border-2 border-gray-600 ${selectedStyle}`;
       case 'scanner':
-        // Diamond - Green filled
-        return `${baseStyle} bg-green-200 border-2 border-green-600 transform rotate-45 ${selectedStyle}`;
+        // Diamond - Green
+        return `${baseStyle} bg-green-300 border-2 border-green-600 transform rotate-45 ${selectedStyle}`;
       case 'eject':
-        // Box - Orange filled
-        return `${baseStyle} rounded bg-orange-200 border-2 border-orange-600 ${selectedStyle}`;
-      case 'special':
-        // Double circle - Yellow/Cyan filled for V-nodes
-        const isVNode = data.code.startsWith('V');
-        const bgColor = isVNode && parseInt(data.code.slice(1)) > 30 ? 'bg-cyan-200 border-cyan-600' : 'bg-yellow-200 border-yellow-600';
-        return `${baseStyle} rounded-full ${bgColor} border-4 border-double ${selectedStyle}`;
-      case 'sblfeed':
-        // Square - Light blue filled
-        return `${baseStyle} rounded-none bg-blue-100 border-2 border-blue-500 ${selectedStyle}`;
+        // Box - Orange
+        return `${baseStyle} rounded bg-orange-300 border-2 border-orange-600 ${selectedStyle}`;
+      case 'feed':
+        // Square Box - Blue (sblFeed nodes)
+        return `${baseStyle} rounded-none bg-blue-300 border-2 border-blue-600 ${selectedStyle}`;
+      case 'ptlzone':
+        // Double Circle - Yellow (V001-V016)
+        return `${baseStyle} rounded-full bg-yellow-300 border-4 border-double border-yellow-600 ${selectedStyle}`;
+      case 'sblzone':
+        // Double Circle - Blue/Cyan (V031-V054)
+        return `${baseStyle} rounded-full bg-cyan-300 border-4 border-double border-cyan-600 ${selectedStyle}`;
       default:
-        return `${baseStyle} rounded-full bg-gray-200 border-2 border-gray-500`;
+        return `${baseStyle} rounded-full bg-gray-300 border-2 border-gray-600`;
     }
   };
 

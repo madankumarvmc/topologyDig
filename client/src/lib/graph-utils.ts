@@ -6,14 +6,25 @@ function mapNodeType(nodeData: any): NodeType {
   const type = nodeData.type || '';
   const attrs = nodeData.attrs || {};
   
-  // SBL Feed nodes (squares) - codes like 61, 63, 65
+  // FEED nodes (square boxes) - codes like 61, 63, 65 or sblFeed attribute
   if (attrs.sblFeed === 'true' || code.match(/^(61|63|65)$/)) {
-    return 'sblfeed';
+    return 'feed';
   }
   
-  // Special nodes (double circles) - V-prefixed nodes
-  if (code.startsWith('V')) {
-    return 'special';
+  // PTL ZONE nodes (double circles, yellow) - V001-V016
+  if (code.startsWith('V') && code.length === 4) {
+    const vNumber = parseInt(code.slice(1));
+    if (vNumber >= 1 && vNumber <= 16) {
+      return 'ptlzone';
+    }
+  }
+  
+  // SBL ZONE nodes (double circles, blue) - V031-V054
+  if (code.startsWith('V') && code.length === 4) {
+    const vNumber = parseInt(code.slice(1));
+    if (vNumber >= 31 && vNumber <= 54) {
+      return 'sblzone';
+    }
   }
   
   // Map based on JSON type

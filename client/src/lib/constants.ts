@@ -2,7 +2,7 @@ import { Node, Edge } from 'reactflow';
 import CustomNode from '@/components/custom-node';
 import CustomEdge from '@/components/custom-edge';
 
-export type NodeType = 'simple' | 'scanner' | 'eject' | 'special' | 'sblfeed';
+export type NodeType = 'simple' | 'scanner' | 'eject' | 'feed' | 'ptlzone' | 'sblzone';
 
 export interface NodeData {
   code: string;
@@ -20,14 +20,15 @@ export const EDGE_TYPES = {
   smoothstep: CustomEdge,
 };
 
-export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject', 'special', 'sblfeed'];
+export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject', 'feed', 'ptlzone', 'sblzone'];
 
 export const DEFAULT_NODE_ATTRS: Record<NodeType, Record<string, string>> = {
   simple: {},
   scanner: {},
   eject: {},
-  special: {},
-  sblfeed: { sblFeed: 'true' },
+  feed: { sblFeed: 'true' },
+  ptlzone: {},
+  sblzone: {},
 };
 
 export const QUICK_ATTRIBUTES = [
@@ -42,6 +43,18 @@ export const QUICK_ATTRIBUTES = [
   { key: 'packedCHU', value: 'true', label: 'Packed CHU' },
   { key: 'emptyPackedCHU', value: 'true', label: 'Empty Packed CHU' },
   { key: 'ptlFeedControl', value: 'true', label: 'PTL Feed Control' },
+  { key: 'xdockMapping', value: '', label: 'Xdock Mapping' },
+  { key: 'routeId', value: '', label: 'Route ID' },
+  { key: 'sequenceId', value: '', label: 'Sequence ID' },
+  { key: 'zone', value: '', label: 'Zone' },
+  { key: 'priority', value: '', label: 'Priority' },
+  { key: 'capacity', value: '', label: 'Capacity' },
+  { key: 'maxSpeed', value: '', label: 'Max Speed' },
+  { key: 'conveyor', value: '', label: 'Conveyor' },
+  { key: 'deviceId', value: '', label: 'Device ID' },
+  { key: 'networkId', value: '', label: 'Network ID' },
+  { key: 'status', value: 'active', label: 'Status' },
+  { key: 'enabled', value: 'true', label: 'Enabled' },
 ];
 
 export const EDGE_COLORS = {
