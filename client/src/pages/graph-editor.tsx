@@ -52,7 +52,10 @@ export default function GraphEditor() {
   useEffect(() => {
     const handleUpdateTextNode = (event: CustomEvent) => {
       const { id, text } = event.detail;
-      updateNode(id, { data: { ...nodes.find(n => n.id === id)?.data, text } });
+      const node = nodes.find(n => n.id === id);
+      if (node) {
+        updateNode(id, { data: { ...node.data, text } as any });
+      }
     };
 
     const handleUpdateTextNodeStyle = (event: CustomEvent) => {
@@ -60,7 +63,7 @@ export default function GraphEditor() {
       const node = nodes.find(n => n.id === id);
       if (node) {
         updateNode(id, { 
-          data: { ...node.data, [property]: value } 
+          data: { ...node.data, [property]: value } as any
         });
       }
     };
@@ -323,11 +326,10 @@ export default function GraphEditor() {
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Toolbar */}
-        <NodeToolbar />
-
         {/* Main Canvas */}
         <div className="flex-1 relative" ref={reactFlowWrapper}>
+          {/* Floating Toolbar */}
+          <NodeToolbar />
           <ReactFlow
             nodes={nodes}
             edges={edges}
