@@ -26,6 +26,8 @@ export default function GraphEditor() {
     onNodeClick,
     onEdgeClick,
     onPaneClick,
+    onDrop,
+    onDragOver,
     undo,
     redo,
     canUndo,
@@ -172,6 +174,8 @@ export default function GraphEditor() {
             onNodeClick={onNodeClick}
             onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
             nodeTypes={NODE_TYPES}
             edgeTypes={EDGE_TYPES}
             fitView

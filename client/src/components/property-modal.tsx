@@ -26,11 +26,18 @@ export default function PropertyModal() {
   const [newAttrKey, setNewAttrKey] = useState("");
   const [newAttrValue, setNewAttrValue] = useState("");
 
-  const isOpen = !!(selectedNode || selectedEdge);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleClose = useCallback(() => {
-    onPaneClick();
-  }, [onPaneClick]);
+    setIsOpen(false);
+  }, []);
+
+  // Open modal when node/edge is double-clicked
+  const handleOpen = useCallback(() => {
+    if (selectedNode || selectedEdge) {
+      setIsOpen(true);
+    }
+  }, [selectedNode, selectedEdge]);
 
   const handleUpdateNode = useCallback((field: string, value: any) => {
     if (!selectedNode) return;

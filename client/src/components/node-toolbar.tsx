@@ -2,23 +2,18 @@ import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useGraphStore } from "@/lib/graph-store";
-import { createNewNode } from "@/lib/graph-utils";
 import { NodeType } from "@/lib/constants";
 import { MousePointer, ArrowRight, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function NodeToolbar() {
-  const { addNode, selectedNode, selectedEdge, deleteSelectedElements, setMode, mode } = useGraphStore();
+  const { selectedNode, selectedEdge, deleteSelectedElements, setMode, mode } = useGraphStore();
   const { toast } = useToast();
 
-  const handleCreateNode = useCallback((type: NodeType) => {
-    const node = createNewNode(type);
-    addNode(node);
-    toast({
-      title: "Node Created",
-      description: `${type.toUpperCase()} node has been added to the canvas.`,
-    });
-  }, [addNode, toast]);
+  const handleDragStart = useCallback((event: React.DragEvent, nodeType: NodeType) => {
+    event.dataTransfer.setData('application/reactflow', nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  }, []);
 
   const handleDeleteSelected = useCallback(() => {
     if (selectedNode || selectedEdge) {
@@ -44,41 +39,47 @@ export default function NodeToolbar() {
         <h2 className="font-medium text-gray-800 mb-3">Add Nodes</h2>
         
         <div className="space-y-2">
-          <Button
-            variant="outline"
-            className="w-full justify-start h-auto p-3 hover:border-gray-400 hover:bg-gray-50"
-            onClick={() => handleCreateNode('simple')}
+          <div
+            className="w-full justify-start h-auto p-3 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded cursor-grab active:cursor-grabbing transition-colors"
+            draggable
+            onDragStart={(e) => handleDragStart(e, 'simple')}
           >
-            <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-gray-400 mr-3"></div>
-            <div className="text-left">
-              <div className="text-sm font-medium text-gray-800">SIMPLE</div>
-              <div className="text-xs text-gray-600">Basic node</div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 rounded-full bg-gray-200 border-2 border-gray-400 mr-3"></div>
+              <div className="text-left">
+                <div className="text-sm font-medium text-gray-800">SIMPLE</div>
+                <div className="text-xs text-gray-600">Drag to canvas</div>
+              </div>
             </div>
-          </Button>
+          </div>
           
-          <Button
-            variant="outline"
-            className="w-full justify-start h-auto p-3 hover:border-green-400 hover:bg-green-50"
-            onClick={() => handleCreateNode('scanner')}
+          <div
+            className="w-full justify-start h-auto p-3 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 rounded cursor-grab active:cursor-grabbing transition-colors"
+            draggable
+            onDragStart={(e) => handleDragStart(e, 'scanner')}
           >
-            <div className="w-6 h-6 bg-green-100 border-2 border-green-400 mr-3 transform rotate-45"></div>
-            <div className="text-left">
-              <div className="text-sm font-medium text-gray-800">SCANNER</div>
-              <div className="text-xs text-gray-600">Scanner node</div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-green-100 border-2 border-green-400 mr-3 transform rotate-45"></div>
+              <div className="text-left">
+                <div className="text-sm font-medium text-gray-800">SCANNER</div>
+                <div className="text-xs text-gray-600">Drag to canvas</div>
+              </div>
             </div>
-          </Button>
+          </div>
           
-          <Button
-            variant="outline"
-            className="w-full justify-start h-auto p-3 hover:border-orange-400 hover:bg-orange-50"
-            onClick={() => handleCreateNode('eject')}
+          <div
+            className="w-full justify-start h-auto p-3 border-2 border-dashed border-gray-300 hover:border-orange-400 hover:bg-orange-50 rounded cursor-grab active:cursor-grabbing transition-colors"
+            draggable
+            onDragStart={(e) => handleDragStart(e, 'eject')}
           >
-            <div className="w-6 h-6 bg-orange-100 border-2 border-orange-400 rounded mr-3"></div>
-            <div className="text-left">
-              <div className="text-sm font-medium text-gray-800">EJECT</div>
-              <div className="text-xs text-gray-600">Eject node</div>
+            <div className="flex items-center">
+              <div className="w-6 h-6 bg-orange-100 border-2 border-orange-400 rounded mr-3"></div>
+              <div className="text-left">
+                <div className="text-sm font-medium text-gray-800">EJECT</div>
+                <div className="text-xs text-gray-600">Drag to canvas</div>
+              </div>
             </div>
-          </Button>
+          </div>
         </div>
       </div>
       

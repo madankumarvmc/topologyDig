@@ -10,7 +10,7 @@ import {
   EdgeChange,
   MarkerType
 } from 'reactflow';
-import { NodeData } from './constants';
+import { NodeData, NodeType } from './constants';
 
 interface GraphState {
   nodes: Node<NodeData>[];
@@ -37,6 +37,9 @@ interface GraphActions {
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (connection: Connection) => void;
   onNodeClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
+  onNodeDoubleClick: (event: React.MouseEvent, node: Node<NodeData>) => void;
+  onDrop: (event: React.DragEvent) => void;
+  onDragOver: (event: React.DragEvent) => void;
   onEdgeClick: (event: React.MouseEvent, edge: Edge) => void;
   onPaneClick: () => void;
   setMode: (mode: 'select' | 'connect') => void;
@@ -169,9 +172,44 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
 
   onNodeClick: (event, node) => {
     event.stopPropagation();
+    // Only select node, don't open modal automatically
     set({
       selectedNode: node,
       selectedEdge: null,
+    });
+  },
+
+  onDragOver: (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  },
+
+  onDrop: (event) => {
+    event.preventDefault();
+    
+    const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+    const type = event.dataTransfer.getData('application/reactflow');
+    
+    if (typeof type === 'undefined' || !type) {
+      return;
+    }
+
+    const position = {
+      x: event.clientX - reactFlowBounds.left,
+      y: event.clientY - reactFlowBounds.top,
+    };
+
+    // Import createNewNode dynamically to avoid circular dependencies
+    import('../lib/graph-utils').then(({ createNewNode }) => {
+      const newNode = createNewNode(type as NodeType);
+      newNode.position = position;
+      
+      set((state) => ({
+        nodes: [...state.nodes, newNode],
+        selectedNode: null,
+        selectedEdge: null,
+      }));
+      get().saveToHistory();
     });
   },
 
