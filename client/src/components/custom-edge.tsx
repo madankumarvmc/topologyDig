@@ -1,5 +1,14 @@
-import { memo } from 'react';
-import { EdgeProps, getBezierPath, getSmoothStepPath, EdgeLabelRenderer, Position } from 'reactflow';
+import { memo, useCallback } from 'react';
+import { EdgeProps, EdgeLabelRenderer, getStraightPath } from 'reactflow';
+
+interface EdgeData {
+  pathType?: 'straight' | 'lshaped';
+  midPoints?: Array<{ x: number; y: number }>;
+  distance?: number;
+  attrs?: Record<string, any>;
+  default?: boolean;
+  capacity?: number;
+}
 
 const CustomEdge = memo(({
   id,
@@ -13,82 +22,96 @@ const CustomEdge = memo(({
   markerEnd,
   label,
   selected,
-  pathOptions,
-  source,
-  target,
-}: EdgeProps) => {
-  // Calculate distance between nodes
-  const distance = Math.sqrt(Math.pow(targetX - sourceX, 2) + Math.pow(targetY - sourceY, 2));
+  data,
+}: EdgeProps<EdgeData>) => {
+  // Determine path type - default to L-shaped for better routing
+  const pathType = data?.pathType || 'lshaped';
   
-  // Detect potential loops (edges going back to nearby nodes)
-  const isLoop = source === target;
-  const isNearbyConnection = distance < 200;
+  // Calculate path based on type
+  const calculatePath = useCallback((type: string) => {
+    if (type === 'straight') {
+      const [straightPath] = getStraightPath({
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+      });
+      return straightPath;
+    } else {
+      // L-shaped path - choose direction based on distance
+      const deltaX = Math.abs(targetX - sourceX);
+      const deltaY = Math.abs(targetY - sourceY);
+      
+      if (deltaX > deltaY) {
+        // Horizontal first, then vertical
+        const midX = targetX;
+        return `M ${sourceX} ${sourceY} L ${midX} ${sourceY} L ${targetX} ${targetY}`;
+      } else {
+        // Vertical first, then horizontal  
+        const midY = targetY;
+        return `M ${sourceX} ${sourceY} L ${sourceX} ${midY} L ${targetX} ${targetY}`;
+      }
+    }
+  }, [sourceX, sourceY, targetX, targetY]);
+
+  const edgePath = calculatePath(pathType);
   
-  let edgePath: string;
-  let labelX: number;
-  let labelY: number;
-  
-  if (isLoop) {
-    // Create a self-loop with a circular path
-    const loopSize = 50;
-    const cx = sourceX + loopSize;
-    const cy = sourceY - loopSize;
-    edgePath = `M ${sourceX} ${sourceY} 
-                C ${sourceX + loopSize} ${sourceY - loopSize/2}, 
-                  ${sourceX + loopSize} ${sourceY - loopSize*1.5}, 
-                  ${sourceX} ${sourceY - loopSize*2}
-                C ${sourceX - loopSize} ${sourceY - loopSize*1.5}, 
-                  ${sourceX - loopSize} ${sourceY - loopSize/2}, 
-                  ${sourceX} ${sourceY}`;
-    labelX = sourceX;
-    labelY = sourceY - loopSize;
-  } else if (isNearbyConnection) {
-    // For nearby connections, create curved paths to avoid visual overlap
-    const offset = Math.max(30, 200 - distance); // Larger offset for closer nodes
-    const angle = Math.atan2(targetY - sourceY, targetX - sourceX);
-    const perpAngle = angle + Math.PI / 2;
-    
-    // Create deterministic offset based on edge ID to avoid multiple edges overlapping
-    const hashCode = id.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    const normalizedHash = (hashCode % 100) / 100; // 0 to 1
-    const edgeOffset = (normalizedHash - 0.5) * offset * 2; // -offset to +offset
-    
-    const offsetX = Math.cos(perpAngle) * edgeOffset;
-    const offsetY = Math.sin(perpAngle) * edgeOffset;
-    
-    const controlPointX = (sourceX + targetX) / 2 + offsetX;
-    const controlPointY = (sourceY + targetY) / 2 + offsetY;
-    
-    edgePath = `M ${sourceX} ${sourceY} Q ${controlPointX} ${controlPointY} ${targetX} ${targetY}`;
-    labelX = controlPointX;
-    labelY = controlPointY;
-  } else {
-    // Use smooth step path for distant connections
-    [edgePath, labelX, labelY] = getSmoothStepPath({
-      sourceX,
-      sourceY,
-      sourcePosition,
-      targetX,
-      targetY,
-      targetPosition,
-      borderRadius: pathOptions?.borderRadius || 15,
-      offset: pathOptions?.offset || 30,
-    });
-  }
+  // Calculate label position (midpoint of path)
+  const labelX = (sourceX + targetX) / 2;
+  const labelY = (sourceY + targetY) / 2;
 
   const edgeStyle = {
     stroke: style.stroke || '#666',
     strokeWidth: style.strokeWidth || 2,
     strokeDasharray: style.strokeDasharray,
+    cursor: 'pointer',
     ...style,
   };
 
   if (selected) {
     edgeStyle.stroke = '#3b82f6';
     edgeStyle.strokeWidth = 3;
+  }
+
+  // Create control handles for selected L-shaped edges
+  const controlHandles = [];
+  if (selected && pathType === 'lshaped') {
+    const deltaX = Math.abs(targetX - sourceX);
+    const deltaY = Math.abs(targetY - sourceY);
+    
+    let controlX, controlY;
+    if (deltaX > deltaY) {
+      // Control point for horizontal-first L-shape
+      controlX = targetX;
+      controlY = sourceY;
+    } else {
+      // Control point for vertical-first L-shape
+      controlX = sourceX;
+      controlY = targetY;
+    }
+
+    controlHandles.push(
+      <g key="control-handle">
+        <circle
+          cx={controlX}
+          cy={controlY}
+          r="6"
+          fill="white"
+          stroke="#3b82f6"
+          strokeWidth="2"
+          className="cursor-move"
+          style={{ pointerEvents: 'all' }}
+        />
+        <circle
+          cx={controlX}
+          cy={controlY}
+          r="3"
+          fill="#3b82f6"
+          className="cursor-move"
+          style={{ pointerEvents: 'all' }}
+        />
+      </g>
+    );
   }
 
   return (
@@ -99,7 +122,9 @@ const CustomEdge = memo(({
         className="react-flow__edge-path"
         d={edgePath}
         markerEnd={markerEnd}
+        fill="none"
       />
+      {controlHandles}
       {label && (
         <EdgeLabelRenderer>
           <div

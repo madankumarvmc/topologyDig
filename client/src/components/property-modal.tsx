@@ -335,6 +335,25 @@ export default function PropertyModal() {
                 </div>
                 
                 <div>
+                  <Label htmlFor="pathType" className="text-xs font-medium text-gray-700">Path Type</Label>
+                  <Select
+                    value={selectedEdge.data?.pathType || 'lshaped'}
+                    onValueChange={(value) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      pathType: value 
+                    })}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="straight">Straight Line</SelectItem>
+                      <SelectItem value="lshaped">L-Shaped</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
                   <Label htmlFor="distance" className="text-xs font-medium text-gray-700">Distance</Label>
                   <Input
                     id="distance"
