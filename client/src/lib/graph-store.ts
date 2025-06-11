@@ -192,13 +192,16 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
 
   onNodeDoubleClick: (event, node) => {
     event.stopPropagation();
-    // Double-click opens property modal
-    set({
-      selectedNode: node,
-      selectedEdge: null,
-    });
-    // Trigger property modal opening via custom event
-    window.dispatchEvent(new CustomEvent('openPropertyModal'));
+    // Only open property modal for warehouse nodes, not text boxes
+    if (node.type === 'custom') {
+      set({
+        selectedNode: node,
+        selectedEdge: null,
+      });
+      // Trigger property modal opening via custom event
+      window.dispatchEvent(new CustomEvent('openPropertyModal'));
+    }
+    // Text boxes handle their own double-click editing internally
   },
 
   onDragOver: (event) => {
