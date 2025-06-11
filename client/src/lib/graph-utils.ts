@@ -35,6 +35,12 @@ function mapNodeType(nodeData: any): NodeType {
       return 'scanner';
     case 'EJECT':
       return 'eject';
+    case 'FEED':
+      return 'feed';
+    case 'PTLZONE':
+      return 'ptlzone';
+    case 'SBLZONE':
+      return 'sblzone';
     default:
       return 'simple';
   }
