@@ -17,7 +17,7 @@ import { exportToJSON, importFromJSON } from "@/lib/graph-utils";
 import { parseDotGraph } from "@/lib/dot-parser";
 
 export default function GraphEditor() {
-  const reactFlowWrapper = useRef(null);
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const {
     nodes,
     edges,
@@ -98,6 +98,39 @@ export default function GraphEditor() {
           toast({
             title: "Import Failed",
             description: "Failed to import graph. Please check the JSON format.",
+            variant: "destructive",
+          });
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }, [setNodes, setEdges, toast]);
+
+  const handleDotImport = useCallback(() => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".dot,.gv";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const dotContent = event.target?.result as string;
+          const { nodes: importedNodes, edges: importedEdges } = parseDotGraph(dotContent);
+          setNodes(importedNodes);
+          setEdges(importedEdges);
+          
+          toast({
+            title: "DOT Import Successful",
+            description: `Imported ${importedNodes.length} nodes and ${importedEdges.length} edges with hierarchical layout.`,
+          });
+        } catch (error) {
+          toast({
+            title: "DOT Import Failed",
+            description: "Failed to parse DOT file. Please check the file format.",
             variant: "destructive",
           });
         }
@@ -229,6 +262,10 @@ export default function GraphEditor() {
             <Upload className="h-4 w-4 mr-2" />
             Import JSON
           </Button>
+          <Button variant="outline" size="sm" onClick={handleDotImport}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import DOT
+          </Button>
           <Button size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export JSON
@@ -281,7 +318,7 @@ export default function GraphEditor() {
                 y: event.clientY - reactFlowBounds.top - 25,
               } : { x: event.clientX - 75, y: event.clientY - 25 };
               
-              const type = event.dataTransfer.getData('application/reactflow');
+              const type = event.dataTransfer.getData('application/reactflow') as any;
               if (type) {
                 event.preventDefault();
                 import('../lib/graph-utils').then(({ createNewNode }) => {
