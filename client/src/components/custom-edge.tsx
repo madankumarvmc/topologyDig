@@ -116,6 +116,24 @@ const CustomEdge = memo(({
 
   return (
     <>
+      <defs>
+        <linearGradient id={`flow-gradient-${id}`} gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="transparent" />
+          <stop offset="20%" stopColor={selected ? '#3b82f6' : '#666'} stopOpacity="0.3" />
+          <stop offset="50%" stopColor={selected ? '#3b82f6' : '#666'} stopOpacity="0.8" />
+          <stop offset="80%" stopColor={selected ? '#3b82f6' : '#666'} stopOpacity="0.3" />
+          <stop offset="100%" stopColor="transparent" />
+          <animateTransform
+            attributeName="gradientTransform"
+            type="translate"
+            values="0 0; 100 0; 0 0"
+            dur="2s"
+            repeatCount="indefinite"
+          />
+        </linearGradient>
+      </defs>
+      
+      {/* Main edge path */}
       <path
         id={id}
         style={edgeStyle}
@@ -124,6 +142,29 @@ const CustomEdge = memo(({
         markerEnd={markerEnd}
         fill="none"
       />
+      
+      {/* Animated flowing dots overlay */}
+      <path
+        style={{
+          stroke: `url(#flow-gradient-${id})`,
+          strokeWidth: 6,
+          strokeDasharray: '10 5',
+          strokeLinecap: 'round',
+          strokeDashoffset: '0',
+        }}
+        className="react-flow__edge-path"
+        d={edgePath}
+        fill="none"
+        pointerEvents="none"
+      >
+        <animate
+          attributeName="stroke-dashoffset"
+          values="0;-15;0"
+          dur="1.5s"
+          repeatCount="indefinite"
+        />
+      </path>
+      
       {controlHandles}
       {label && (
         <EdgeLabelRenderer>
