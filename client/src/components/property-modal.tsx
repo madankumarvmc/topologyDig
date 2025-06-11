@@ -126,12 +126,7 @@ export default function PropertyModal() {
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Node Properties</span>
-              <Button variant="ghost" size="sm" onClick={handleClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTitle>
+            <DialogTitle>Node Properties</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -306,12 +301,7 @@ export default function PropertyModal() {
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>Edge Properties</span>
-              <Button variant="ghost" size="sm" onClick={handleClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTitle>
+            <DialogTitle>Edge Properties</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
