@@ -35,8 +35,15 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
     }
   }, [isEditing]);
 
-  const handleDoubleClick = () => {
-    setIsEditing(true);
+  const handleClick = () => {
+    if (!isEditing) {
+      setIsEditing(true);
+      if (!data.text || data.text === 'Text') {
+        setEditText('');
+      } else {
+        setEditText(data.text);
+      }
+    }
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -125,7 +132,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
       {/* Text Content */}
       <div
         className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[100px] min-h-[30px] flex items-center justify-center relative`}
-        onDoubleClick={handleDoubleClick}
+        onClick={handleClick}
         style={textStyle}
       >
         {isEditing ? (
@@ -150,7 +157,9 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             className="w-full h-full overflow-hidden whitespace-pre-wrap"
             style={textStyle}
           >
-            {data.text || 'Text'}
+            {data.text || (
+              <span className="text-gray-400 italic">Click to add text</span>
+            )}
           </div>
         )}
         
@@ -159,7 +168,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
           <>
             {/* Top-left corner */}
             <div
-              className="absolute -top-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-nw-resize rounded-sm z-10"
+              className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-blue-500 border border-white cursor-nw-resize rounded-sm z-50 hover:bg-blue-600"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -169,7 +178,6 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
                   const newWidth = Math.max(80, startWidth - deltaX);
@@ -194,7 +202,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Top-right corner */}
             <div
-              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-ne-resize rounded-sm z-10"
+              className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-blue-500 border border-white cursor-ne-resize rounded-sm z-50 hover:bg-blue-600"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -204,7 +212,6 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
                   const newWidth = Math.max(80, startWidth + deltaX);
@@ -229,7 +236,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Bottom-left corner */}
             <div
-              className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-500 border border-white cursor-sw-resize rounded-sm z-10"
+              className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-blue-500 border border-white cursor-sw-resize rounded-sm z-50 hover:bg-blue-600"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -239,7 +246,6 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
                   const newWidth = Math.max(80, startWidth - deltaX);
@@ -264,7 +270,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             
             {/* Bottom-right corner */}
             <div
-              className="absolute -bottom-1 -right-1 w-2 h-2 bg-blue-500 border border-white cursor-se-resize rounded-sm z-10"
+              className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-blue-500 border border-white cursor-se-resize rounded-sm z-50 hover:bg-blue-600"
               onMouseDown={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -274,7 +280,6 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
                 const startHeight = data.height || 40;
                 
                 const handleMouseMove = (e: MouseEvent) => {
-                  e.preventDefault();
                   const deltaX = e.clientX - startX;
                   const deltaY = e.clientY - startY;
                   const newWidth = Math.max(80, startWidth + deltaX);
