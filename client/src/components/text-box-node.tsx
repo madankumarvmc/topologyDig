@@ -1,7 +1,6 @@
-import { memo, useState, useRef, useEffect } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { memo, useState, useRef, useEffect, useCallback } from 'react';
+import { NodeProps } from 'reactflow';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 
@@ -20,100 +19,120 @@ interface TextBoxData {
 
 const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(data.text || 'Text');
-  const [showFormatting, setShowFormatting] = useState(selected);
+  const [editText, setEditText] = useState(data.text || '');
   const textRef = useRef<HTMLTextAreaElement>(null);
 
+  // Sync editText with data.text when data changes
   useEffect(() => {
-    setShowFormatting(selected);
-  }, [selected]);
+    if (!isEditing) {
+      setEditText(data.text || '');
+    }
+  }, [data.text, isEditing]);
 
   useEffect(() => {
     if (isEditing && textRef.current) {
       textRef.current.focus();
-      textRef.current.select();
+      if (!data.text || data.text === '') {
+        textRef.current.setSelectionRange(0, 0);
+      } else {
+        textRef.current.select();
+      }
     }
   }, [isEditing]);
 
-  const handleClick = () => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!isEditing) {
       setIsEditing(true);
-      if (!data.text || data.text === 'Text') {
-        setEditText('');
-      } else {
-        setEditText(data.text);
-      }
     }
-  };
+  }, [isEditing]);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setEditText(e.target.value);
-    // Auto-resize based on content
-    autoResizeToFitText(e.target.value);
-  };
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newText = e.target.value;
+    setEditText(newText);
+  }, []);
 
-  const autoResizeToFitText = (text: string) => {
-    if (!text || text.length === 0) return;
-    
-    // Create a temporary element to measure text
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.visibility = 'hidden';
-    tempDiv.style.whiteSpace = 'pre-wrap';
-    tempDiv.style.fontSize = `${data.fontSize || 14}px`;
-    tempDiv.style.fontFamily = 'Arial, sans-serif';
-    tempDiv.style.fontWeight = data.fontWeight || 'normal';
-    tempDiv.style.fontStyle = data.fontStyle || 'normal';
-    tempDiv.style.padding = '8px';
-    tempDiv.style.border = '2px solid transparent';
-    tempDiv.textContent = text;
-    
-    document.body.appendChild(tempDiv);
-    
-    const measuredWidth = tempDiv.offsetWidth;
-    const measuredHeight = tempDiv.offsetHeight;
-    
-    document.body.removeChild(tempDiv);
-    
-    const newWidth = Math.max(100, measuredWidth + 10);
-    const newHeight = Math.max(40, measuredHeight + 10);
-    
-    updateProperty('width', newWidth);
-    updateProperty('height', newHeight);
-  };
-
-  const handleTextSubmit = () => {
+  const handleTextSubmit = useCallback(() => {
     setIsEditing(false);
-    // Update node data through the store
     window.dispatchEvent(new CustomEvent('updateTextNode', {
       detail: { id, text: editText }
     }));
-    // Auto-resize after editing is complete
-    autoResizeToFitText(editText);
-  };
+  }, [id, editText]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleTextSubmit();
     } else if (e.key === 'Escape') {
       setIsEditing(false);
-      setEditText(data.text || 'Text');
+      setEditText(data.text || '');
     }
-  };
+  }, [handleTextSubmit, data.text]);
 
-  const toggleStyle = (property: string, value: string, currentValue: string) => {
-    const newValue = currentValue === value ? 'normal' : value;
-    window.dispatchEvent(new CustomEvent('updateTextNodeStyle', {
-      detail: { id, property, value: newValue }
-    }));
-  };
-
-  const updateProperty = (property: string, value: any) => {
+  const updateProperty = useCallback((property: string, value: any) => {
     window.dispatchEvent(new CustomEvent('updateTextNodeStyle', {
       detail: { id, property, value }
     }));
-  };
+  }, [id]);
+
+  const toggleStyle = useCallback((property: string, value: string, currentValue: string) => {
+    updateProperty(property, currentValue === value ? 'normal' : value);
+  }, [updateProperty]);
+
+  // Create resize handler
+  const createResizeHandler = useCallback((direction: string) => {
+    return (e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startWidth = data.width || 150;
+      const startHeight = data.height || 40;
+      
+      const handleMouseMove = (e: MouseEvent) => {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        
+        let newWidth = startWidth;
+        let newHeight = startHeight;
+        
+        switch (direction) {
+          case 'nw':
+            newWidth = Math.max(80, startWidth - deltaX);
+            newHeight = Math.max(30, startHeight - deltaY);
+            break;
+          case 'ne':
+            newWidth = Math.max(80, startWidth + deltaX);
+            newHeight = Math.max(30, startHeight - deltaY);
+            break;
+          case 'sw':
+            newWidth = Math.max(80, startWidth - deltaX);
+            newHeight = Math.max(30, startHeight + deltaY);
+            break;
+          case 'se':
+            newWidth = Math.max(80, startWidth + deltaX);
+            newHeight = Math.max(30, startHeight + deltaY);
+            break;
+        }
+        
+        updateProperty('width', newWidth);
+        updateProperty('height', newHeight);
+      };
+      
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
+      };
+      
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = `${direction}-resize`;
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    };
+  }, [data.width, data.height, updateProperty]);
 
   const textStyle = {
     fontSize: `${data.fontSize || 14}px`,
@@ -131,7 +150,7 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
     <div className="relative">
       {/* Text Content */}
       <div
-        className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[100px] min-h-[30px] flex items-center justify-center relative`}
+        className={`border-2 border-dashed ${selected ? 'border-blue-400' : 'border-transparent'} rounded p-2 cursor-text hover:border-gray-300 transition-colors min-w-[80px] min-h-[30px] flex items-center justify-center relative`}
         onClick={handleClick}
         style={textStyle}
       >
@@ -151,11 +170,19 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
               textAlign: textStyle.textAlign,
               color: textStyle.color,
             }}
+            placeholder="Type here..."
           />
         ) : (
           <div
             className="w-full h-full overflow-hidden whitespace-pre-wrap"
-            style={textStyle}
+            style={{
+              fontSize: textStyle.fontSize,
+              fontWeight: textStyle.fontWeight,
+              fontStyle: textStyle.fontStyle,
+              textDecoration: textStyle.textDecoration,
+              textAlign: textStyle.textAlign,
+              color: textStyle.color,
+            }}
           >
             {data.text || (
               <span className="text-gray-400 italic">Click to add text</span>
@@ -163,150 +190,38 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
           </div>
         )}
         
-        {/* Figjam-style Resize Handles */}
-        {selected && (
+        {/* Resize Handles */}
+        {selected && !isEditing && (
           <>
             {/* Top-left corner */}
             <div
               className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-blue-500 border border-white cursor-nw-resize rounded-sm z-50 hover:bg-blue-600"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startWidth = data.width || 150;
-                const startHeight = data.height || 40;
-                
-                const handleMouseMove = (e: MouseEvent) => {
-                  const deltaX = e.clientX - startX;
-                  const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(80, startWidth - deltaX);
-                  const newHeight = Math.max(30, startHeight - deltaY);
-                  updateProperty('width', newWidth);
-                  updateProperty('height', newHeight);
-                };
-                
-                const handleMouseUp = () => {
-                  document.removeEventListener('mousemove', handleMouseMove);
-                  document.removeEventListener('mouseup', handleMouseUp);
-                  document.body.style.userSelect = '';
-                  document.body.style.cursor = '';
-                };
-                
-                document.body.style.userSelect = 'none';
-                document.body.style.cursor = 'nw-resize';
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
-              }}
+              onMouseDown={createResizeHandler('nw')}
             />
             
             {/* Top-right corner */}
             <div
               className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-blue-500 border border-white cursor-ne-resize rounded-sm z-50 hover:bg-blue-600"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startWidth = data.width || 150;
-                const startHeight = data.height || 40;
-                
-                const handleMouseMove = (e: MouseEvent) => {
-                  const deltaX = e.clientX - startX;
-                  const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(80, startWidth + deltaX);
-                  const newHeight = Math.max(30, startHeight - deltaY);
-                  updateProperty('width', newWidth);
-                  updateProperty('height', newHeight);
-                };
-                
-                const handleMouseUp = () => {
-                  document.removeEventListener('mousemove', handleMouseMove);
-                  document.removeEventListener('mouseup', handleMouseUp);
-                  document.body.style.userSelect = '';
-                  document.body.style.cursor = '';
-                };
-                
-                document.body.style.userSelect = 'none';
-                document.body.style.cursor = 'ne-resize';
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
-              }}
+              onMouseDown={createResizeHandler('ne')}
             />
             
             {/* Bottom-left corner */}
             <div
               className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-blue-500 border border-white cursor-sw-resize rounded-sm z-50 hover:bg-blue-600"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startWidth = data.width || 150;
-                const startHeight = data.height || 40;
-                
-                const handleMouseMove = (e: MouseEvent) => {
-                  const deltaX = e.clientX - startX;
-                  const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(80, startWidth - deltaX);
-                  const newHeight = Math.max(30, startHeight + deltaY);
-                  updateProperty('width', newWidth);
-                  updateProperty('height', newHeight);
-                };
-                
-                const handleMouseUp = () => {
-                  document.removeEventListener('mousemove', handleMouseMove);
-                  document.removeEventListener('mouseup', handleMouseUp);
-                  document.body.style.userSelect = '';
-                  document.body.style.cursor = '';
-                };
-                
-                document.body.style.userSelect = 'none';
-                document.body.style.cursor = 'sw-resize';
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
-              }}
+              onMouseDown={createResizeHandler('sw')}
             />
             
             {/* Bottom-right corner */}
             <div
               className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-blue-500 border border-white cursor-se-resize rounded-sm z-50 hover:bg-blue-600"
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                const startX = e.clientX;
-                const startY = e.clientY;
-                const startWidth = data.width || 150;
-                const startHeight = data.height || 40;
-                
-                const handleMouseMove = (e: MouseEvent) => {
-                  const deltaX = e.clientX - startX;
-                  const deltaY = e.clientY - startY;
-                  const newWidth = Math.max(80, startWidth + deltaX);
-                  const newHeight = Math.max(30, startHeight + deltaY);
-                  updateProperty('width', newWidth);
-                  updateProperty('height', newHeight);
-                };
-                
-                const handleMouseUp = () => {
-                  document.removeEventListener('mousemove', handleMouseMove);
-                  document.removeEventListener('mouseup', handleMouseUp);
-                  document.body.style.userSelect = '';
-                  document.body.style.cursor = '';
-                };
-                
-                document.body.style.userSelect = 'none';
-                document.body.style.cursor = 'se-resize';
-                document.addEventListener('mousemove', handleMouseMove);
-                document.addEventListener('mouseup', handleMouseUp);
-              }}
+              onMouseDown={createResizeHandler('se')}
             />
           </>
         )}
       </div>
 
       {/* Formatting Toolbar */}
-      {showFormatting && (
+      {selected && (
         <div className="absolute -top-12 left-0 bg-white border border-gray-300 rounded-lg shadow-lg p-2 flex items-center space-x-1 z-50">
           <Select
             value={data.fontSize?.toString() || "14"}
@@ -388,6 +303,14 @@ const TextBoxNode = memo(({ data, selected, id }: NodeProps<TextBoxData>) => {
             onChange={(e) => updateProperty('color', e.target.value)}
             className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
             title="Text Color"
+          />
+
+          <input
+            type="color"
+            value={data.backgroundColor || '#ffffff'}
+            onChange={(e) => updateProperty('backgroundColor', e.target.value)}
+            className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
+            title="Background Color"
           />
         </div>
       )}
