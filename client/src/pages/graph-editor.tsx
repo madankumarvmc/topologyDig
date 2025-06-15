@@ -282,11 +282,16 @@ export default function GraphEditor() {
             Warehouse Topology Designer
           </span>
         </div>
-        <div>
+        <div className="flex items-center space-x-2">
+          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">
+            Warehouse ID:
+          </label>
           <input
             type="text"
-            placeholder="Warehouse ID"
-            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            placeholder="Enter ID"
+            value={warehouseId}
+            onChange={(e) => setWarehouseId(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm min-w-[140px] bg-white transition-all duration-200"
           />
         </div>
 
