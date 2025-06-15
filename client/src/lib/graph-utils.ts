@@ -64,7 +64,7 @@ export function createNewNode(type: NodeType): Node<NodeData> {
   };
 }
 
-export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
+export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = [], warehouseId?: string) {
   // Create a map of node IDs to their codes for edge mapping
   const nodeIdToCode = new Map();
   nodes.forEach(node => {
@@ -72,7 +72,7 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = []) {
   });
 
   return {
-    whId: Date.now(),
+    whId: warehouseId && warehouseId.trim() ? warehouseId.trim() : Date.now(),
     nodes: nodes.filter(node => node.type === 'custom').map(node => ({
       code: node.data.code,
       type: node.data.type.toUpperCase(),

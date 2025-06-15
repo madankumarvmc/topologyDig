@@ -37,6 +37,7 @@ import { parseDotGraph } from "@/lib/dot-parser";
 export default function GraphEditor() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
+  const [warehouseId, setWarehouseId] = useState<string>("");
   const {
     nodes,
     edges,
@@ -109,14 +110,17 @@ export default function GraphEditor() {
 
   const handleExport = useCallback(() => {
     try {
-      const data = exportToJSON(nodes, edges);
+      const data = exportToJSON(nodes, edges, warehouseId);
       const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `warehouse-topology-${Date.now()}.json`;
+      const filename = warehouseId 
+        ? `warehouse-topology-${warehouseId}.json`
+        : `warehouse-topology-${Date.now()}.json`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -133,7 +137,7 @@ export default function GraphEditor() {
         variant: "destructive",
       });
     }
-  }, [nodes, edges, toast]);
+  }, [nodes, edges, warehouseId, toast]);
 
   const handleImport = useCallback(() => {
     const input = document.createElement("input");
@@ -151,6 +155,11 @@ export default function GraphEditor() {
             importFromJSON(jsonData);
           setNodes(importedNodes);
           setEdges(importedEdges);
+          
+          // Set warehouse ID from imported data
+          if (jsonData.whId) {
+            setWarehouseId(String(jsonData.whId));
+          }
 
           toast({
             title: "Import Successful",
@@ -272,6 +281,13 @@ export default function GraphEditor() {
           <span className="text-[18px] font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
             Warehouse Topology Designer
           </span>
+        </div>
+        <div>
+          <input
+            type="text"
+            placeholder="Warehouse ID"
+            className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          />
         </div>
 
         <div className="flex items-center space-x-3">
