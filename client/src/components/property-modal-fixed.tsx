@@ -54,23 +54,20 @@ export default function PropertyModal() {
     updateEdge(selectedEdge.id, { [field]: value });
   }, [selectedEdge, updateEdge]);
 
-  const handleAddAttribute = useCallback(() => {
-    if (!selectedNode || !newAttrKey.trim()) return;
+  const handleAddAttribute = useCallback((key: string, value: string) => {
+    if (!selectedNode || !key.trim()) return;
     
     const updatedAttrs = {
       ...selectedNode.data.attrs,
-      [newAttrKey.trim()]: newAttrValue.trim() || "true"
+      [key.trim()]: value.trim() || "true"
     };
     
-    updateNode(selectedNode.id, { data: { ...selectedNode.data, attrs: updatedAttrs } });
+    updateNode(selectedNode.id, { 
+      data: { ...selectedNode.data, attrs: updatedAttrs } 
+    });
     setNewAttrKey("");
     setNewAttrValue("");
-    
-    toast({
-      title: "Attribute Added",
-      description: `Added attribute: ${newAttrKey}`,
-    });
-  }, [selectedNode, newAttrKey, newAttrValue, updateNode, toast]);
+  }, [selectedNode, updateNode]);
 
   const handleRemoveAttribute = useCallback((key: string) => {
     if (!selectedNode) return;
@@ -78,24 +75,22 @@ export default function PropertyModal() {
     const updatedAttrs = { ...selectedNode.data.attrs };
     delete updatedAttrs[key];
     
-    updateNode(selectedNode.id, { data: { ...selectedNode.data, attrs: updatedAttrs } });
-    
-    toast({
-      title: "Attribute Removed",
-      description: `Removed attribute: ${key}`,
+    updateNode(selectedNode.id, { 
+      data: { ...selectedNode.data, attrs: updatedAttrs } 
     });
-  }, [selectedNode, updateNode, toast]);
+  }, [selectedNode, updateNode]);
 
-  const handleQuickAttribute = useCallback((attrString: string) => {
+  const handleQuickAttribute = useCallback((key: string, value: string) => {
     if (!selectedNode) return;
     
-    const [key, value] = attrString.split(":");
     const updatedAttrs = {
       ...selectedNode.data.attrs,
       [key]: value
     };
     
-    updateNode(selectedNode.id, { data: { ...selectedNode.data, attrs: updatedAttrs } });
+    updateNode(selectedNode.id, { 
+      data: { ...selectedNode.data, attrs: updatedAttrs } 
+    });
     
     toast({
       title: "Quick Attribute Added",
@@ -222,7 +217,7 @@ export default function PropertyModal() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={handleAddAttribute}
+                      onClick={() => handleAddAttribute(newAttrKey, newAttrValue)}
                       disabled={!newAttrKey.trim()}
                     >
                       <Plus className="h-3 w-3" />
@@ -233,46 +228,37 @@ export default function PropertyModal() {
                 {/* Quick Attributes */}
                 <div>
                   <Label className="text-xs font-medium text-gray-700 mb-2 block">Quick Attributes</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => handleQuickAttribute("junction:true")}
-                    >
-                      Junction
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => handleQuickAttribute("ptlFeed:true")}
-                    >
-                      PTL Feed
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => handleQuickAttribute("blockedHU:true")}
-                    >
-                      Blocked HU
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                      onClick={() => handleQuickAttribute("emptyHU:true")}
-                    >
-                      Empty HU
-                    </Button>
+                  <div className="grid grid-cols-3 gap-1">
+                    {[
+                      ["junction", "true"],
+                      ["ptlFeed", "true"],
+                      ["sblFeed", "true"],
+                      ["blockedHU", "true"],
+                      ["emptyHU", "true"],
+                      ["misc", "true"],
+                      ["noEligibleZone", "true"],
+                      ["qc", "true"],
+                      ["packedCHU", "true"],
+                      ["emptyPackedCHU", "true"],
+                      ["ptlFeedControl", "true"],
+                      ["xdockMapping", "X01"]
+                    ].map(([key, value]) => (
+                      <Button
+                        key={key}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs py-1 px-2"
+                        onClick={() => handleQuickAttribute(key, value)}
+                      >
+                        {key}
+                      </Button>
+                    ))}
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Action Buttons */}
           <div className="flex space-x-2">
             <Button
               variant="outline"
@@ -317,7 +303,6 @@ export default function PropertyModal() {
                     id="from"
                     type="text"
                     value={String(selectedEdge.source || "")}
-                    onChange={(e) => handleUpdateEdge('source', e.target.value)}
                     placeholder="Source node code"
                     className="mt-1"
                     readOnly
@@ -330,7 +315,6 @@ export default function PropertyModal() {
                     id="to"
                     type="text"
                     value={String(selectedEdge.target || "")}
-                    onChange={(e) => handleUpdateEdge('target', e.target.value)}
                     placeholder="Target node code"
                     className="mt-1"
                     readOnly
