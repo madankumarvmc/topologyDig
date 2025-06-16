@@ -394,6 +394,44 @@ export default function PropertyModal() {
                 </div>
 
                 <div>
+                  <Label htmlFor="edgeType" className="text-xs font-medium text-gray-700">Edge Type</Label>
+                  <Select
+                    value={selectedEdge.data?.type || 'CONVEYOR'}
+                    onValueChange={(value) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      type: value 
+                    })}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CONVEYOR">Conveyor</SelectItem>
+                      <SelectItem value="AMR">AMR (Autonomous Mobile Robot)</SelectItem>
+                      <SelectItem value="HOPT">HOPT (Human Operated Transport)</SelectItem>
+                      <SelectItem value="BOPT">BOPT (Battery Operated Transport)</SelectItem>
+                      <SelectItem value="MANUAL">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="speed" className="text-xs font-medium text-gray-700">Speed (units/min)</Label>
+                  <Input
+                    id="speed"
+                    type="number"
+                    step="1"
+                    value={selectedEdge.data?.speed || 60}
+                    onChange={(e) => handleUpdateEdge('data', { 
+                      ...selectedEdge.data, 
+                      speed: parseInt(e.target.value) || 60 
+                    })}
+                    placeholder="Speed value"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="label" className="text-xs font-medium text-gray-700">Label</Label>
                   <Input
                     id="label"

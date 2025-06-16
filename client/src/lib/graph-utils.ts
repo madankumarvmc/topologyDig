@@ -83,14 +83,20 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = [], wareho
       const sourceNode = nodes.find(n => n.id === edge.source);
       const targetNode = nodes.find(n => n.id === edge.target);
       return sourceNode?.type === 'custom' && targetNode?.type === 'custom';
-    }).map(edge => ({
-      from: nodeIdToCode.get(edge.source) || edge.source,
-      to: nodeIdToCode.get(edge.target) || edge.target,
-      distance: edge.data?.distance || 0.5,
-      attrs: edge.data?.attrs || {},
-      default: edge.data?.default || false,
-      capacity: edge.data?.capacity || 1,
-    })),
+    }).map(edge => {
+      const sourceNode = nodes.find(n => n.id === edge.source);
+      const targetNode = nodes.find(n => n.id === edge.target);
+      return {
+        from: sourceNode?.data.code || edge.source,
+        to: targetNode?.data.code || edge.target,
+        type: edge.data?.type || 'CONVEYOR',
+        speed: edge.data?.speed || 60,
+        distance: edge.data?.distance || 0.5,
+        attrs: edge.data?.attrs || {},
+        default: edge.data?.default || false,
+        capacity: edge.data?.capacity || 1,
+      };
+    }),
     loops: [], // Will be populated in phase 2 with loop detection
   };
 }
@@ -155,6 +161,9 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
             attrs: edgeData.attrs || {},
             default: edgeData.default || false,
             capacity: edgeData.capacity || 1,
+            type: edgeData.type || 'CONVEYOR',
+            speed: edgeData.speed || 60,
+            pathType: 'lshaped',
           },
         };
         edges.push(edge);

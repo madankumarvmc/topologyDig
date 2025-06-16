@@ -177,6 +177,8 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
           attrs: {},
           default: false,
           capacity: 1,
+          type: 'CONVEYOR',
+          speed: 60,
         },
       }, state.edges),
     }));

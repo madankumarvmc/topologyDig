@@ -8,6 +8,8 @@ interface EdgeData {
   attrs?: Record<string, any>;
   default?: boolean;
   capacity?: number;
+  type?: 'CONVEYOR' | 'AMR' | 'HOPT' | 'BOPT' | 'MANUAL';
+  speed?: number;
 }
 
 const CustomEdge = memo(({
