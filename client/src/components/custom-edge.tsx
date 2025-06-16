@@ -26,8 +26,8 @@ const CustomEdge = memo(({
   selected,
   data,
 }: EdgeProps<EdgeData>) => {
-  // Determine path type - default to L-shaped for better routing
-  const pathType = data?.pathType || 'lshaped';
+  // Determine path type - default to straight line
+  const pathType = data?.pathType || 'straight';
   
   // Calculate path based on type
   const calculatePath = useCallback((type: string) => {

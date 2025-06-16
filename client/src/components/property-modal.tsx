@@ -339,7 +339,7 @@ export default function PropertyModal() {
                 <div>
                   <Label htmlFor="pathType" className="text-xs font-medium text-gray-700">Path Type</Label>
                   <Select
-                    value={selectedEdge.data?.pathType || 'lshaped'}
+                    value={selectedEdge.data?.pathType || 'straight'}
                     onValueChange={(value) => handleUpdateEdge('data', { 
                       ...selectedEdge.data, 
                       pathType: value 

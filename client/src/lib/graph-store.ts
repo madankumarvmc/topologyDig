@@ -170,8 +170,12 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
         ...connection,
         type: 'custom',
         markerEnd: { type: MarkerType.ArrowClosed },
+        style: {
+          stroke: '#3b82f6',
+          strokeWidth: 2,
+        },
         data: {
-          pathType: 'lshaped',
+          pathType: 'straight',
           midPoints: [],
           distance: 0.5,
           attrs: {},

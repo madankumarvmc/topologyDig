@@ -163,7 +163,7 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
             capacity: edgeData.capacity || 1,
             type: edgeData.type || 'CONVEYOR',
             speed: edgeData.speed || 60,
-            pathType: 'lshaped',
+            pathType: 'straight',
           },
         };
         edges.push(edge);
