@@ -19,7 +19,8 @@ export default function PropertyModal() {
     updateEdge, 
     deleteSelectedElements, 
     duplicateNode,
-    onPaneClick 
+    onPaneClick,
+    nodes 
   } = useGraphStore();
   const { toast } = useToast();
   
@@ -284,7 +285,6 @@ export default function PropertyModal() {
 
   if (selectedEdge) {
     // Get node codes for the edge
-    const { nodes } = useGraphStore();
     const sourceNode = nodes.find(n => n.id === selectedEdge.source);
     const targetNode = nodes.find(n => n.id === selectedEdge.target);
     const sourceCode = sourceNode?.data?.code || selectedEdge.source;
