@@ -283,6 +283,13 @@ export default function PropertyModal() {
   }
 
   if (selectedEdge) {
+    // Get node codes for the edge
+    const { nodes } = useGraphStore();
+    const sourceNode = nodes.find(n => n.id === selectedEdge.source);
+    const targetNode = nodes.find(n => n.id === selectedEdge.target);
+    const sourceCode = sourceNode?.data?.code || selectedEdge.source;
+    const targetCode = targetNode?.data?.code || selectedEdge.target;
+
     return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -302,7 +309,7 @@ export default function PropertyModal() {
                   <Input
                     id="from"
                     type="text"
-                    value={String(selectedEdge.source || "")}
+                    value={sourceCode}
                     placeholder="Source node code"
                     className="mt-1"
                     readOnly
@@ -314,7 +321,7 @@ export default function PropertyModal() {
                   <Input
                     id="to"
                     type="text"
-                    value={String(selectedEdge.target || "")}
+                    value={targetCode}
                     placeholder="Target node code"
                     className="mt-1"
                     readOnly
