@@ -3,7 +3,7 @@ import CustomNode from '@/components/custom-node';
 import CustomEdge from '@/components/custom-edge';
 import TextBoxNode from '@/components/text-box-node';
 
-export type NodeType = 'simple' | 'scanner' | 'eject' | 'feed' | 'ptlzone' | 'sblzone';
+export type NodeType = 'simple' | 'scanner' | 'eject' | 'feed' | 'ptlzone' | 'sblzone' | 'asrs-infeed' | 'asrs-eject';
 
 export interface NodeData {
   code: string;
@@ -35,7 +35,7 @@ export const EDGE_TYPES = {
   smoothstep: CustomEdge,
 };
 
-export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject', 'feed', 'ptlzone', 'sblzone'];
+export const NODE_TYPES_LIST: NodeType[] = ['simple', 'scanner', 'eject', 'feed', 'ptlzone', 'sblzone', 'asrs-infeed', 'asrs-eject'];
 
 export const DEFAULT_NODE_ATTRS: Record<NodeType, Record<string, string>> = {
   simple: {},
@@ -44,6 +44,8 @@ export const DEFAULT_NODE_ATTRS: Record<NodeType, Record<string, string>> = {
   feed: { sblFeed: 'true' },
   ptlzone: {},
   sblzone: {},
+  'asrs-infeed': {},
+  'asrs-eject': {},
 };
 
 export const QUICK_ATTRIBUTES = [

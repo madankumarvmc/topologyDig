@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useGraphStore } from "@/lib/graph-store";
-import { Plus, Link, Type } from "lucide-react";
+import { Plus, Link, Type, Box } from "lucide-react";
 
 export default function NodeToolbar() {
   const { mode, setMode, addNode } = useGraphStore();
@@ -48,6 +48,42 @@ export default function NodeToolbar() {
     addNode(textNode);
   }, [addNode]);
 
+  const handleAddASRSPair = useCallback(() => {
+    const timestamp = Date.now();
+    const baseX = 400;
+    const baseY = 300;
+    
+    // Create ASRS Infeed node
+    const infeedNode = {
+      id: `asrs-infeed-${timestamp}`,
+      type: 'custom',
+      position: { x: baseX - 50, y: baseY },
+      data: {
+        code: '',
+        type: 'asrs-infeed' as const,
+        cmd: 0,
+        attrs: {},
+      },
+    };
+    
+    // Create ASRS Eject node (positioned to the right)
+    const ejectNode = {
+      id: `asrs-eject-${timestamp}`,
+      type: 'custom',
+      position: { x: baseX + 50, y: baseY },
+      data: {
+        code: '',
+        type: 'asrs-eject' as const,
+        cmd: 0,
+        attrs: {},
+      },
+    };
+    
+    // Add both nodes to create the ASRS pair
+    addNode(infeedNode);
+    addNode(ejectNode);
+  }, [addNode]);
+
   return (
     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
       <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm p-1 space-x-1">
@@ -79,6 +115,16 @@ export default function NodeToolbar() {
           title="Add Text Box"
         >
           <Type className="h-4 w-4" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleAddASRSPair}
+          className="h-8 w-8 p-0 hover:bg-gray-100"
+          title="Add ASRS Pair (Infeed + Eject)"
+        >
+          <Box className="h-4 w-4" />
         </Button>
       </div>
     </div>

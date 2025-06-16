@@ -12,20 +12,26 @@ const CustomNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         // Circle - Grey
         return `${baseStyle} rounded-full bg-gray-300 border-2 border-gray-600 ${selectedStyle}`;
       case 'scanner':
-        // Diamond - Green
-        return `${baseStyle} bg-green-300 border-2 border-green-600 transform rotate-45 ${selectedStyle}`;
+        // Diamond - Darker Green
+        return `${baseStyle} bg-green-400 border-2 border-green-700 transform rotate-45 ${selectedStyle}`;
       case 'eject':
-        // Box - Orange
-        return `${baseStyle} rounded bg-orange-300 border-2 border-orange-600 ${selectedStyle}`;
+        // Box - Stronger Orange
+        return `${baseStyle} rounded bg-orange-400 border-2 border-orange-700 ${selectedStyle}`;
       case 'feed':
         // Square Box - Blue (sblFeed nodes)
         return `${baseStyle} rounded-none bg-blue-300 border-2 border-blue-600 ${selectedStyle}`;
       case 'ptlzone':
-        // Double Circle - Yellow (V001-V016)
-        return `${baseStyle} rounded-full bg-yellow-300 border-4 border-double border-yellow-600 ${selectedStyle}`;
+        // Double Circle - Amber (better contrast)
+        return `${baseStyle} rounded-full bg-amber-400 border-4 border-double border-amber-700 ${selectedStyle}`;
       case 'sblzone':
-        // Double Circle - Blue/Cyan (V031-V054)
-        return `${baseStyle} rounded-full bg-cyan-300 border-4 border-double border-cyan-600 ${selectedStyle}`;
+        // Double Circle - Sky Blue (better contrast)
+        return `${baseStyle} rounded-full bg-sky-300 border-4 border-double border-sky-600 ${selectedStyle}`;
+      case 'asrs-infeed':
+        // Rectangle - Purple (ASRS Infeed)
+        return `${baseStyle} rounded bg-purple-200 border-2 border-purple-600 ${selectedStyle}`;
+      case 'asrs-eject':
+        // Rectangle - Purple (ASRS Eject)
+        return `${baseStyle} rounded bg-purple-200 border-2 border-purple-600 ${selectedStyle}`;
       default:
         return `${baseStyle} rounded-full bg-gray-300 border-2 border-gray-600`;
     }
