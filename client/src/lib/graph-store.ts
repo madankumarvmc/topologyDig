@@ -49,7 +49,7 @@ interface GraphActions {
   undo: () => void;
   redo: () => void;
   saveToHistory: () => void;
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal', reactFlowInstance?: any) => void;
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'smart', reactFlowInstance?: any) => void;
   copySelectedElements: () => void;
   pasteElements: () => void;
 }
@@ -374,11 +374,17 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
     }
   },
 
-  autoLayout: (layoutType: 'hierarchical' | 'horizontal', reactFlowInstance?: any) => {
+  autoLayout: (layoutType: 'hierarchical' | 'horizontal' | 'smart', reactFlowInstance?: any) => {
     const { nodes, edges } = get();
     
     // Import layout utilities dynamically to avoid circular dependencies
-    import('../lib/layout-utils').then(({ getHierarchicalLayout, getHorizontalLayout }) => {
+    Promise.all([
+      import('../lib/layout-utils'),
+      import('../lib/smart-layout')
+    ]).then(([layoutUtils, smartLayout]) => {
+      const { getHierarchicalLayout, getHorizontalLayout } = layoutUtils;
+      const { getSmartHierarchicalLayout } = smartLayout;
+      
       let layoutedElements;
       
       switch (layoutType) {
@@ -387,6 +393,9 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
           break;
         case 'horizontal':
           layoutedElements = getHorizontalLayout(nodes, edges);
+          break;
+        case 'smart':
+          layoutedElements = getSmartHierarchicalLayout(nodes, edges);
           break;
         default:
           layoutedElements = getHierarchicalLayout(nodes, edges);

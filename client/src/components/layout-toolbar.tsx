@@ -4,7 +4,8 @@ import { useGraphStore } from "@/lib/graph-store";
 import { useToast } from "@/hooks/use-toast";
 import { 
   ArrowDownWideNarrow, 
-  ArrowRightFromLine 
+  ArrowRightFromLine,
+  Network
 } from "lucide-react";
 
 interface LayoutToolbarProps {
@@ -15,7 +16,7 @@ export default function LayoutToolbar({ reactFlowInstance }: LayoutToolbarProps)
   const { autoLayout, nodes } = useGraphStore();
   const { toast } = useToast();
 
-  const handleAutoLayout = useCallback((layoutType: 'hierarchical' | 'horizontal') => {
+  const handleAutoLayout = useCallback((layoutType: 'hierarchical' | 'horizontal' | 'smart') => {
     if (nodes.length === 0) {
       toast({
         title: "No Nodes",
@@ -29,7 +30,8 @@ export default function LayoutToolbar({ reactFlowInstance }: LayoutToolbarProps)
     
     const layoutNames = {
       hierarchical: "Vertical Layout",
-      horizontal: "Horizontal Layout"
+      horizontal: "Horizontal Layout",
+      smart: "Smart Layout"
     };
 
     toast({
@@ -62,6 +64,16 @@ export default function LayoutToolbar({ reactFlowInstance }: LayoutToolbarProps)
         title="Horizontal Layout"
       >
         <ArrowRightFromLine className="h-4 w-4" />
+      </Button>
+      
+      <Button
+        variant="outline"
+        size="sm"
+        className="bg-white/95 backdrop-blur-sm shadow-sm border p-2"
+        onClick={() => handleAutoLayout('smart')}
+        title="Smart Layout - Minimizes edge crossings and groups by type"
+      >
+        <Network className="h-4 w-4" />
       </Button>
     </div>
   );
