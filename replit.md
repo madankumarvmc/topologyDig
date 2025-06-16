@@ -99,11 +99,27 @@ This is a professional 2D graph editor application designed for creating and man
 - **Schema Migration**: `npm run db:push` applies schema changes
 - **Fallback Storage**: In-memory storage implementation for development
 
+## Recent Changes
+
+### June 16, 2025 - Smart Layout System
+- **Smart Hierarchical Layout**: Implemented intelligent layout algorithm that groups nodes by type and minimizes edge crossings using Dagre's "tight-tree" ranker
+- **Large Topology Optimization**: Added ultra-compact spacing for graphs with 500+ nodes (80px spacing vs 280px for small graphs)
+- **Auto-Zoom for Massive Graphs**: Automatic zoom adjustment based on graph size - very large topologies (500+ nodes) zoom to 0.05-0.3x for full visibility
+- **Import Layout Enhancement**: JSON import now automatically applies smart layout and optimal zoom level
+- **ASRS Node Differentiation**: ASRS-INFEED nodes use purple color, ASRS-EJECT nodes use indigo for better distinction
+
+### Technical Implementation
+- **Smart Layout Module**: `client/src/lib/smart-layout.ts` - Dedicated module for advanced layout algorithms
+- **Dynamic Node Sizing**: Smaller nodes (60px) for massive topologies, maintaining readability while fitting more on screen  
+- **Edge Weight Prioritization**: Scanner connections and default routes receive higher weights to reduce crossings
+- **Responsive Spacing**: Adaptive horizontal (80-180px) and rank spacing (120-280px) based on node count
+
 ## Changelog
 
 ```
 Changelog:
-- June 15, 2025. Initial setup
+- June 15, 2025. Initial setup  
+- June 16, 2025. Smart hierarchical layout and zoom optimization for large warehouse topologies
 ```
 
 ## User Preferences

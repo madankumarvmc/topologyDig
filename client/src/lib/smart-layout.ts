@@ -5,18 +5,40 @@ import { NodeData } from './constants';
 export function getSmartHierarchicalLayout(
   nodes: Node<NodeData>[],
   edges: Edge[],
-  nodeWidth = 80,
-  nodeHeight = 80
+  nodeWidth?: number,
+  nodeHeight?: number
 ) {
+  // Adjust node size based on graph size for better visibility
+  const totalNodes = nodes.length;
+  if (!nodeWidth || !nodeHeight) {
+    if (totalNodes > 500) {
+      nodeWidth = 60;
+      nodeHeight = 60;
+    } else if (totalNodes > 200) {
+      nodeWidth = 70;
+      nodeHeight = 70;
+    } else {
+      nodeWidth = 80;
+      nodeHeight = 80;
+    }
+  }
+  
   // Create a new dagre graph for smart layout
   const smartGraph = new dagre.graphlib.Graph();
   smartGraph.setDefaultEdgeLabel(() => ({}));
 
   // Calculate optimal spacing based on node count to prevent overlapping
-  const totalNodes = nodes.length;
   let horizontalSpacing, rankSpacing;
   
-  if (totalNodes > 100) {
+  if (totalNodes > 500) {
+    // Very large topologies - ultra compact
+    horizontalSpacing = 80;
+    rankSpacing = 120;
+  } else if (totalNodes > 200) {
+    // Large topologies - compact spacing
+    horizontalSpacing = 100;
+    rankSpacing = 150;
+  } else if (totalNodes > 100) {
     horizontalSpacing = 120;
     rankSpacing = 180;
   } else if (totalNodes > 50) {

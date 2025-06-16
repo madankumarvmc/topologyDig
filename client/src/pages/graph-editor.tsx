@@ -161,9 +161,35 @@ export default function GraphEditor() {
             setWarehouseId(String(jsonData.whId));
           }
 
+          // Auto-fit view for imported large graphs
+          if (reactFlowInstance && importedNodes.length > 50) {
+            setTimeout(() => {
+              let minZoom, maxZoom, padding;
+              if (importedNodes.length > 500) {
+                minZoom = 0.05;
+                maxZoom = 0.3;
+                padding = 0.05;
+              } else if (importedNodes.length > 200) {
+                minZoom = 0.1;
+                maxZoom = 0.5;
+                padding = 0.08;
+              } else {
+                minZoom = 0.1;
+                maxZoom = 1;
+                padding = 0.1;
+              }
+              
+              reactFlowInstance.fitView({ 
+                padding,
+                minZoom,
+                maxZoom
+              });
+            }, 200);
+          }
+
           toast({
             title: "Import Successful",
-            description: "Graph imported with smart layout applied.",
+            description: `Graph imported with ${importedNodes.length} nodes. Layout optimized for viewing.`,
           });
         } catch (error) {
           toast({

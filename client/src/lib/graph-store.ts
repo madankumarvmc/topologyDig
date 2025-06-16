@@ -409,12 +409,32 @@ export const useGraphStore = create<GraphState & GraphActions>((set, get) => ({
       });
       
       // Auto-fit view for large graphs after layout
-      if (reactFlowInstance && nodes.length > 50) {
+      if (reactFlowInstance) {
         setTimeout(() => {
+          // Adjust zoom parameters based on graph size
+          let minZoom, maxZoom, padding;
+          if (nodes.length > 500) {
+            minZoom = 0.05;
+            maxZoom = 0.3;
+            padding = 0.05;
+          } else if (nodes.length > 200) {
+            minZoom = 0.1;
+            maxZoom = 0.5;
+            padding = 0.08;
+          } else if (nodes.length > 50) {
+            minZoom = 0.1;
+            maxZoom = 1;
+            padding = 0.1;
+          } else {
+            minZoom = 0.5;
+            maxZoom = 2;
+            padding = 0.15;
+          }
+          
           reactFlowInstance.fitView({ 
-            padding: 0.1,
-            minZoom: 0.1,
-            maxZoom: 1
+            padding,
+            minZoom,
+            maxZoom
           });
         }, 100);
       }
