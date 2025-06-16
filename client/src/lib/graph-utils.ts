@@ -105,27 +105,19 @@ export function exportToJSON(nodes: Node<NodeData>[], edges: Edge[] = [], wareho
   };
 }
 
-export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges: Edge[] } {
+export async function importFromJSON(jsonData: any): Promise<{ nodes: Node<NodeData>[]; edges: Edge[] }> {
   const nodes: Node<NodeData>[] = [];
   const edges: Edge[] = [];
   const nodeCodeToId = new Map();
 
-  // Import nodes
+  // Import nodes with temporary positioning
   if (jsonData.nodes && Array.isArray(jsonData.nodes)) {
-    const nodeCount = jsonData.nodes.length;
-    // Use tighter spacing for large graphs
-    const spacing = nodeCount > 100 ? { x: 80, y: 60 } : { x: 150, y: 120 };
-    const nodesPerRow = nodeCount > 100 ? 20 : 10;
-    
     jsonData.nodes.forEach((nodeData: any, index: number) => {
       const nodeId = (index + 1).toString();
       const node: Node<NodeData> = {
         id: nodeId,
         type: 'custom',
-        position: { 
-          x: 50 + (index % nodesPerRow) * spacing.x, 
-          y: 50 + Math.floor(index / nodesPerRow) * spacing.y 
-        },
+        position: { x: 0, y: 0 }, // Temporary position - will be overridden by layout
         data: {
           code: nodeData.code || `node_${index}`,
           type: mapNodeType(nodeData),
@@ -173,6 +165,13 @@ export function importFromJSON(jsonData: any): { nodes: Node<NodeData>[]; edges:
         edges.push(edge);
       }
     });
+  }
+
+  // Apply smart hierarchical layout to prevent overlapping
+  if (nodes.length > 0) {
+    const { getSmartHierarchicalLayout } = await import('./smart-layout');
+    const layoutedResult = getSmartHierarchicalLayout(nodes, edges);
+    return layoutedResult;
   }
 
   return { nodes, edges };

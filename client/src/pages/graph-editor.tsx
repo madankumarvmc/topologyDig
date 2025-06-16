@@ -148,11 +148,11 @@ export default function GraphEditor() {
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         try {
           const jsonData = JSON.parse(event.target?.result as string);
           const { nodes: importedNodes, edges: importedEdges } =
-            importFromJSON(jsonData);
+            await importFromJSON(jsonData);
           setNodes(importedNodes);
           setEdges(importedEdges);
           
@@ -163,7 +163,7 @@ export default function GraphEditor() {
 
           toast({
             title: "Import Successful",
-            description: "Graph imported from JSON file successfully.",
+            description: "Graph imported with smart layout applied.",
           });
         } catch (error) {
           toast({
