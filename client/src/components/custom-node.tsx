@@ -30,8 +30,8 @@ const CustomNode = memo(({ data, selected }: NodeProps<NodeData>) => {
         // Rectangle - Purple (ASRS Infeed)
         return `${baseStyle} rounded bg-purple-200 border-2 border-purple-600 ${selectedStyle}`;
       case 'asrs-eject':
-        // Rectangle - Purple (ASRS Eject)
-        return `${baseStyle} rounded bg-purple-200 border-2 border-purple-600 ${selectedStyle}`;
+        // Rectangle - Indigo (ASRS Eject)
+        return `${baseStyle} rounded bg-indigo-200 border-2 border-indigo-600 ${selectedStyle}`;
       default:
         return `${baseStyle} rounded-full bg-gray-300 border-2 border-gray-600`;
     }
