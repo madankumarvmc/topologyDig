@@ -57,7 +57,7 @@ export default function NodeToolbar() {
     const infeedNode = {
       id: `asrs-infeed-${timestamp}`,
       type: 'custom',
-      position: { x: baseX - 50, y: baseY },
+      position: { x: baseX - 60, y: baseY },
       data: {
         code: '',
         type: 'asrs-infeed' as const,
@@ -66,11 +66,11 @@ export default function NodeToolbar() {
       },
     };
     
-    // Create ASRS Eject node (positioned to the right)
+    // Create ASRS Eject node (positioned to the right with more spacing)
     const ejectNode = {
-      id: `asrs-eject-${timestamp}`,
+      id: `asrs-eject-${timestamp + 1}`,
       type: 'custom',
-      position: { x: baseX + 50, y: baseY },
+      position: { x: baseX + 60, y: baseY },
       data: {
         code: '',
         type: 'asrs-eject' as const,
@@ -81,7 +81,10 @@ export default function NodeToolbar() {
     
     // Add both nodes to create the ASRS pair
     addNode(infeedNode);
-    addNode(ejectNode);
+    // Small delay to ensure both nodes are created properly
+    setTimeout(() => {
+      addNode(ejectNode);
+    }, 10);
   }, [addNode]);
 
   return (
