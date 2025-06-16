@@ -41,6 +41,10 @@ function mapNodeType(nodeData: any): NodeType {
       return 'ptlzone';
     case 'SBLZONE':
       return 'sblzone';
+    case 'ASRS-INFEED':
+      return 'asrs-infeed';
+    case 'ASRS-EJECT':
+      return 'asrs-eject';
     default:
       return 'simple';
   }
